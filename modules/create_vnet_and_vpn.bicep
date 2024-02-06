@@ -1,8 +1,18 @@
-param vneName string = 'private_azure_sql_vnet1'
 param location string=resourceGroup().location
-// param rg string = resourceGroup().name 
+param vnetName string = 'private_azure_sql_vnet1'
+
+@description('A unique suffix to add to resource names that need to be globally unique.')
+@maxLength(13)
+param resourceNameSuffix string = uniqueString(resourceGroup().id)
+
+@allowed( [
+  'yes' 
+  'no'
+])
+param createGateway string='yes'
 
 param tenanatID string=subscription().tenantId
+
 var aadTenant ='https://login.microsoftonline.com/${tenanatID}'
 
 var aadIssuer='https://sts.windows.net/${tenanatID}/'
@@ -15,7 +25,7 @@ var aadIssuer='https://sts.windows.net/${tenanatID}/'
 var aadAudience='41b23e61-6c1e-4545-b367-cd054e0ed4b4'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
-  name: vneName
+  name: vnetName
   location: location
   properties: {
     addressSpace: {
@@ -25,13 +35,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
     }
     subnets: [
       {
-        name: 'sub1'
+        name: 'frontendSubnet'
         properties: {
           addressPrefix:  '10.0.0.0/24'
+        }        
+      }
+      {
+        name: 'backendSubnet'
+        properties: {
+          addressPrefix:  '10.0.1.0/24'
         }
       }
       {
-        name: 'GatewaySubnet'
+        name: 'gatewaySubnet'
         properties: {
           addressPrefix:  '10.0.2.0/24'
         }
@@ -40,8 +56,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   }
 }
 
+
 resource publicIPAddresses_pocgtway1_name_rsc 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
-  name: 'bicepBupIP'
+  name: 'gatewayPublicIP'
   location: location
   sku: {
     name: 'Standard'
@@ -53,7 +70,7 @@ resource publicIPAddresses_pocgtway1_name_rsc 'Microsoft.Network/publicIPAddress
   }
 }
 
-resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
+resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(createGateway=='yes') {
   name: 'vpngtway'
   location: location
   properties: {
@@ -67,7 +84,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
             id: publicIPAddresses_pocgtway1_name_rsc.id
           }
           subnet: {
-            id: vnet.properties.subnets[1].id //virtualNetworks_pocvnet_name_GatewaySubnet.id 
+            id: vnet.properties.subnets[2].id //gatewaySubnet.id 
           }
         }
       }
@@ -103,17 +120,11 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
     }    
   }
 }
-// resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-//   name: 'ostadstorage'
-//   location: location
-//   kind: 'StorageV2'
-//   sku: {
-//     name:  'Standard_GRS'
-//   }
-// }
 
 
-output vnetSubnetID string=vnet.properties.subnets[0].id
+output frontendSubnet object= vnet.properties.subnets[0]
+output backendSubnet object=vnet.properties.subnets[1] 
+output gatewaySubnet object=vnet.properties.subnets[2] 
 output vnetId string = vnet.id
-output gatewayId string = vpnGateway.id
+output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
 
