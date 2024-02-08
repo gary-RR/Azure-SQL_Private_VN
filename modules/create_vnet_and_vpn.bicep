@@ -1,5 +1,5 @@
 param location string=resourceGroup().location
-param vnetName string = 'private_azure_sql_vnet1'
+param appName string='cosmo'
 
 @description('A unique suffix to add to resource names that need to be globally unique.')
 @maxLength(13)
@@ -11,9 +11,23 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 ])
 param createGateway string='yes'
 
-param tenanatID string=subscription().tenantId
+// @allowed( [
+//   'test'
+//   'prod'
+// ])
+// param environment
 
-var aadTenant ='https://login.microsoftonline.com/${tenanatID}'
+
+param vnetAddressPrefixes string='10.0.0.0/16'
+param subnet1AddressPrefixes string='10.0.0.0/24'
+param subnet2AddressPrefixes string='10.0.1.0/24'
+param subnet3AddressPrefixes string='10.0.2.0/24'
+param vpnClientAddressPrefix string='172.16.201.0/24'
+
+param tenanatID string=subscription().tenantId
+// The following returns "https://login.microsoftonline.com" which is a best practice raher hard coding it
+var aadTenantURL=environment().authentication.loginEndpoint
+var aadTenant='${aadTenantURL}${tenanatID}'
 
 var aadIssuer='https://sts.windows.net/${tenanatID}/'
 
@@ -24,32 +38,39 @@ var aadIssuer='https://sts.windows.net/${tenanatID}/'
 // Microsoft Azure operated by 21Vianet: 49f817b6-84ae-4cc0-928c-73f27289b3aa
 var aadAudience='41b23e61-6c1e-4545-b367-cd054e0ed4b4'
 
+var vnetName= 'vnet-${appName}-${resourceNameSuffix}'
+var subnet1Name='frontendSubnet'
+var subnet2Name='backendSubnet'
+var subnet3Name='gatewaySubnet'
+var gatewayPublicIPName='pip-gateway-${appName}-${resourceNameSuffix}'
+var vpnName='vpn-${appName}-${resourceNameSuffix}'
+
 resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetName
   location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '10.0.0.0/16'
+        vnetAddressPrefixes
       ]
     }
     subnets: [
       {
-        name: 'frontendSubnet'
+        name: subnet1Name
         properties: {
-          addressPrefix:  '10.0.0.0/24'
+          addressPrefix:  subnet1AddressPrefixes
         }        
       }
       {
-        name: 'backendSubnet'
+        name: subnet2Name
         properties: {
-          addressPrefix:  '10.0.1.0/24'
+          addressPrefix:  subnet2AddressPrefixes
         }
       }
       {
-        name: 'gatewaySubnet'
+        name: subnet3Name
         properties: {
-          addressPrefix:  '10.0.2.0/24'
+          addressPrefix:  subnet3AddressPrefixes
         }
       }
     ]
@@ -57,8 +78,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
 }
 
 
-resource publicIPAddresses_pocgtway1_name_rsc 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
-  name: 'gatewayPublicIP'
+resource gatewayPublicAddress 'Microsoft.Network/publicIPAddresses@2023-05-01' = {
+  name: gatewayPublicIPName
   location: location
   sku: {
     name: 'Standard'
@@ -71,7 +92,7 @@ resource publicIPAddresses_pocgtway1_name_rsc 'Microsoft.Network/publicIPAddress
 }
 
 resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(createGateway=='yes') {
-  name: 'vpngtway'
+  name: vpnName
   location: location
   properties: {
     ipConfigurations: [
@@ -81,10 +102,10 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            id: publicIPAddresses_pocgtway1_name_rsc.id
+            id: gatewayPublicAddress.id
           }
           subnet: {
-            id: vnet.properties.subnets[2].id //gatewaySubnet.id 
+            id: vnet.properties.subnets[2].id 
           }
         }
       }
@@ -100,7 +121,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
     vpnClientConfiguration: {
       vpnClientAddressPool: {
         addressPrefixes: [
-          '172.16.201.0/24'
+          vpnClientAddressPrefix 
         ]
       }
       vpnClientProtocols: [

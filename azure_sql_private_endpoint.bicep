@@ -1,17 +1,47 @@
 param location string=resourceGroup().location
-param sqlServerName string
+
+@description('A unique suffix to add to resource names that need to be globally unique.')
+@maxLength(13)
+param resourceNameSuffix string = uniqueString(resourceGroup().id)
+
+param appName string ='cosmo'
+param sqlServerName string='sql-${appName}-${resourceNameSuffix}'
 param adminLoginName string
+
+param createWindowsServer1 bool=false
+param createLinuxServer1 bool=false
+param createWindowsDesktop1 bool=true
+
+@secure()
 param adminPassword string
+
 param databaseName string
-param privateEndpointName string='sql-private-endpoint'
-param privateDnsZoneGroupName string='sqlPrivateDnsZoneGroup'
-param vmName string='testvm'
+param privateEndpointName string='pep-${appName}-${resourceNameSuffix}'
+
+@maxLength(15)
+param vmWindowsServer1Name string='vm-${appName}-hr'
+
+@maxLength(15)
+param vmWindowsDesktop1Name string='vm-${appName}-client'
+
+param vmWLinuxName string='vm-${appName}-stores'
+
 param vmSize string='Standard_A0'
-param vmloginUser string='gary'
-param vmloginPassword string='g@678219'
+param vmWindowsLoginUser string
+param vmLinuxLoginUser string
+
+
+@secure()
+param vmWindowsLoginPassword string
+
+@secure()
+param vmLinuxLoginPassword string
 
 @maxLength(63)
-param privateDnsZoneName string='privatelink${environment().suffixes.sqlServerHostname}'
+param privateDnsZoneName string='prv-dns-zone-${appName}${environment().suffixes.sqlServerHostname}'
+
+@maxLength(63)
+param privateDnsZoneLinkName string='prv-dns-zone-vnet-lnk${appName}${environment().suffixes.sqlServerHostname}'
 
 @description('Select the type of environment you want to provision. Allowed values are Production and Test.')
 @allowed([
@@ -60,13 +90,15 @@ var environmentConfigurationMap = {
   }
 }
 
-var vnetName='private_azure_sql_vnet1'
+var privateDnsZoneGroupName='${appName}-PrivateDnsZoneGroup'
+var nicNameWindowServer1='nic-${vmWindowsServer1Name}'
+var nicNameLinux='nic-${vmWLinuxName}'
+var nicNameWindowsDesktop1='nic-${vmWindowsDesktop1Name}'
 
 module createVnet 'modules/create_vnet_and_vpn.bicep' = {
   name: 'vnet'
   params: {
     location: location
-    vnetName: vnetName
     tenanatID : subscription().tenantId
   }
 }
@@ -110,13 +142,13 @@ resource allowFrontEndVnetTrafficFirewallRules 'Microsoft.Sql/servers/firewallRu
   
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
-  name: 'nic1'
+resource nicWindowsServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if (createWindowsServer1) {
+  name: nicNameWindowServer1
   location: location
   properties: {
     ipConfigurations: [
       {
-        name: '${vmName}vmip'
+        name: '${vmWindowsServer1Name}vmip'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
@@ -131,17 +163,18 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   ]
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-  name: vmName
+
+resource vmWindowsServer1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createWindowsServer1) {
+  name: vmWindowsServer1Name
   location: location
   properties: {
     hardwareProfile: {
       vmSize: vmSize
     }
     osProfile: {
-      computerName: '${vmName}vm'
-      adminUsername: vmloginUser
-      adminPassword: vmloginPassword
+      computerName: vmWindowsServer1Name
+      adminUsername: vmWindowsLoginUser
+      adminPassword: vmWindowsLoginPassword
     }
     storageProfile: {
       imageReference: {
@@ -161,12 +194,135 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: nic.id
+          id: nicWindowsServer1.id
         }
       ]
     }
   }
 }
+
+resource nicWindowsDesktop1 'Microsoft.Network/networkInterfaces@2020-06-01' = if (createWindowsDesktop1) {
+  name: nicNameWindowsDesktop1
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: '${vmWindowsDesktop1Name}vmip'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: createVnet.outputs.frontendSubnet.id
+          }
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    createVnet
+  ]
+}
+
+resource vmWindowsDesktop1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createWindowsDesktop1) {
+  name: vmWindowsDesktop1Name
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D2s_v5' //vmSize
+    }
+    osProfile: {
+      computerName: vmWindowsServer1Name
+      adminUsername: vmWindowsLoginUser
+      adminPassword: vmWindowsLoginPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsDesktop'
+        offer: 'Windows-11'
+        sku: 'win11-21h2-avd'
+        version: 'latest'
+      }
+      osDisk: {
+        name: 'vmdisk1'
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'StandardSSD_LRS'
+        }
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nicWindowsDesktop1.id
+        }
+      ]
+    }
+  }
+}
+
+
+resource nicLinuxServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if (createLinuxServer1) {
+  name: nicNameLinux
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: '${vmWLinuxName}vmip'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: createVnet.outputs.frontendSubnet.id
+          }
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    createVnet
+  ]
+}
+
+resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createLinuxServer1) {
+  name: vmWLinuxName
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_DS1_v2' // Choose an appropriate VM size
+    }
+    osProfile: {
+      adminUsername: vmLinuxLoginUser
+      adminPassword: vmLinuxLoginPassword
+      computerName: vmWLinuxName
+      linuxConfiguration: {
+        disablePasswordAuthentication: false
+      }
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'Canonical'
+        offer: 'UbuntuServer'
+        sku: '18.04-LTS'
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'Standard_LRS'
+        }
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nicLinuxServer1.id
+          properties: {
+            primary: true
+          }
+        }
+      ]
+    }
+  }
+}
+
 
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
@@ -197,9 +353,9 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   // properties: {}
 }
 
-resource privateDnsZone_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZone
-  name: 'privateDbDnsZoneName_var-link'
+  name: privateDnsZoneLinkName
   location: 'global'
   properties: {
     registrationEnabled: true
@@ -225,5 +381,9 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 }
 
 output sqlServerFullyQualifiedDomainName string = sqlServer.properties.fullyQualifiedDomainName
+// output privateEndPointIPAddress string=privateEndpoint.properties.ipConfigurations[0].properties.privateIPAddress
 output sqlDatabaseName string = sqlDatabase.name
+
+
+
 
