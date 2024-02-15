@@ -15,6 +15,7 @@ jobs:
       with: 
         dotnet-version: 6.0.418 
 
+        # Adding some notes
     - name: Buikd website
       run: |
         dotnet publish --configuration Release
