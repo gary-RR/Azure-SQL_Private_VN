@@ -14,7 +14,7 @@ permissions:
 jobs:
 
   # Build the application and database.
-  build_website:
+  build:
     uses: ./.github/workflows/build.yml
 
   # Lint the Bicep file.
