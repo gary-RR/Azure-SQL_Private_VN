@@ -13,7 +13,7 @@ jobs:
     - name: Install Donet Core
       uses: actions/setup-dotnet@v3
       with: 
-        dotnet-version: 3.1 //6.0.418
+        dotnet-version: 3.1 
 
     - name: Buikd website
       run: |
