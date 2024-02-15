@@ -1,0 +1,23 @@
+name: deploy-toy-website-end-to-end
+concurrency: toy-company
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  # Build the application and database.
+  build_website:
+    uses: ./.github/workflows/build.yml
+
+  # Lint the Bicep file.
+  lint:
+    uses: ./.github/workflows/lint.yml

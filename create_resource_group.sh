@@ -4,10 +4,20 @@ echo "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
 echo "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
 
 
-az deployment group create --resource-group rg-AzureSQLTest --template-file ./modules/create_vnet_and_vpn.bicep
 
+# Lint
+az bicep build --file ./deploy/modules/create_vnet_and_vpn.bicep
+#Pre flight validation
+az deployment group validate --resource-group rg-AzureSQLTest --template-file ./deploy/modules/create_vnet_and_vpn.bicep
+# Deploy
+az deployment group create --resource-group rg-AzureSQLTest --template-file ./deploy/modules/create_vnet_and_vpn.bicep
 
-az deployment group create --resource-group rg-AzureSQLTest --template-file azure_sql_private_endpoint.bicep  --parameters environmentType=Test vmLinuxLoginUser='gary' vmLinuxLoginPassword='g@678219' vmWindowsLoginUser='gary' vmWindowsLoginPassword='g@678219' adminLoginName=gary adminPassword='H7$vdL&95xKo0Mj' databaseName=slaesfloor 
+# Lint
+az bicep build --file ./deploy/azure_sql_private_endpoint.bicep
+#Pre flight validation
+az deployment group validate --resource-group rg-AzureSQLTest --template-file ./deploy/azure_sql_private_endpoint.bicep --parameters environmentType=Test vmLinuxLoginUser='gary' vmLinuxLoginPassword='g@678219' vmWindowsLoginUser='gary' vmWindowsLoginPassword='g@678219' adminDBLoginName=gary adminDBPassword='H7$vdL&95xKo0Mj' databaseName=slaesfloor 
+#Deploy
+az deployment group create --resource-group rg-AzureSQLTest --template-file ./deploy/azure_sql_private_endpoint.bicep  --parameters environmentType=Test vmLinuxLoginUser='gary' vmLinuxLoginPassword='g@678219' vmWindowsLoginUser='gary' vmWindowsLoginPassword='g@678219' adminDBLoginName=gary adminDBPassword='H7$vdL&95xKo0Mj' databaseName=slaesfloor 
 
 
 #Clean up

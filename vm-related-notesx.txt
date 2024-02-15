@@ -1,0 +1,20 @@
+#******************************************Linux*****************************************************************************************
+#To log in to an Azure Linux VM (AAssuming the .pem file has been downloaded. Note that must use "azureuser@")
+ssh -i gary.pem azureuser@74.249.204.225 #Through public IP
+or
+ssh -i gary.pem gary@10.0.0.4 #private connection through VPN
+
+#****************************************Windows*****************************************************************************************
+az vm extension set --resource-group rg-AzureSQLTest --vm-name vm-cosmo-hr --name WindowsOpenSSH --publisher Microsoft.Azure.OpenSSH --version 3.0
+ssh gary@10.0.1.4
+
+#Enable ping on Windows
+netsh advfirewall firewall add rule name="ICMP Allow Ping V4" protocol="icmpv4:8,any" dir=in action=allow
+
+Microsoft.Network/privateDnsZones/virtualNetworkLinks
+
+#***************************************SQL Server****************************************************************************************
+Name: sql-cosmo-n45xxjjx5zntc.database.windows.net
+
+Admin user: gary
+Admin apssword: H7$vdL&95xKo0Mj

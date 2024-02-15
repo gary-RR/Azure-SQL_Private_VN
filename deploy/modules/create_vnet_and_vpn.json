@@ -1,0 +1,199 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.25.53.49325",
+      "templateHash": "3279647221000580341"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "cosmo"
+    },
+    "resourceNameSuffix": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]",
+      "maxLength": 13,
+      "metadata": {
+        "description": "A unique suffix to add to resource names that need to be globally unique."
+      }
+    },
+    "createGateway": {
+      "type": "string",
+      "defaultValue": "yes",
+      "allowedValues": [
+        "yes",
+        "no"
+      ]
+    },
+    "vnetAddressPrefixes": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "subnet1AddressPrefixes": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "subnet2AddressPrefixes": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24"
+    },
+    "subnet3AddressPrefixes": {
+      "type": "string",
+      "defaultValue": "10.0.2.0/24"
+    },
+    "vpnClientAddressPrefix": {
+      "type": "string",
+      "defaultValue": "172.16.201.0/24"
+    },
+    "tenanatID": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]"
+    }
+  },
+  "variables": {
+    "aadTenantURL": "[environment().authentication.loginEndpoint]",
+    "aadTenant": "[format('{0}{1}', variables('aadTenantURL'), parameters('tenanatID'))]",
+    "aadIssuer": "[format('https://sts.windows.net/{0}/', parameters('tenanatID'))]",
+    "aadAudience": "41b23e61-6c1e-4545-b367-cd054e0ed4b4",
+    "vnetName": "[format('vnet-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]",
+    "subnet1Name": "frontendSubnet",
+    "subnet2Name": "backendSubnet",
+    "subnet3Name": "gatewaySubnet",
+    "gatewayPublicIPName": "[format('pip-gateway-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]",
+    "vpnName": "[format('vpn-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
+      "name": "[variables('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefixes')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet1AddressPrefixes')]"
+            }
+          },
+          {
+            "name": "[variables('subnet2Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet2AddressPrefixes')]"
+            }
+          },
+          {
+            "name": "[variables('subnet3Name')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnet3AddressPrefixes')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('gatewayPublicIPName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "condition": "[equals(parameters('createGateway'), 'yes')]",
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "apiVersion": "2021-05-01",
+      "name": "[variables('vpnName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIPName'))]"
+              },
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[2].id]"
+              }
+            }
+          }
+        ],
+        "gatewayType": "Vpn",
+        "vpnType": "RouteBased",
+        "sku": {
+          "name": "VpnGw1",
+          "tier": "VpnGw1"
+        },
+        "enableBgp": false,
+        "activeActive": false,
+        "vpnClientConfiguration": {
+          "vpnClientAddressPool": {
+            "addressPrefixes": [
+              "[parameters('vpnClientAddressPrefix')]"
+            ]
+          },
+          "vpnClientProtocols": [
+            "OpenVPN"
+          ],
+          "vpnAuthenticationTypes": [
+            "AAD"
+          ],
+          "vpnClientRootCertificates": [],
+          "vpnClientRevokedCertificates": [],
+          "radiusServers": [],
+          "vpnClientIpsecPolicies": [],
+          "aadTenant": "[variables('aadTenant')]",
+          "aadAudience": "[variables('aadAudience')]",
+          "aadIssuer": "[variables('aadIssuer')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIPName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "frontendSubnet": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[0]]"
+    },
+    "backendSubnet": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[1]]"
+    },
+    "gatewaySubnet": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[2]]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+    },
+    "gatewayId": {
+      "type": "string",
+      "value": "[if(equals(parameters('createGateway'), 'yes'), resourceId('Microsoft.Network/virtualNetworkGateways', variables('vpnName')), '')]"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+name: build-website
+
+on: 
+  workflow_call:
+
+    permissions:
+        id-token: write
+        contents: read
+jobs: 
+   build-application:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps: 
+    - uses: actions/checkout@v3
+
+    - name: Install Donet Core
+      uses: actions/setup-dotnet@v3
+      with: 
+        dotnet-version: 6.0.25
+
+    - name: Buikd website
+      run: |
+        dotnet publish --configuration Release
+      working-directory: ./src/ToyCompany/ToyCompany.Website
+
+    - name: Zip publishable website
+      run: |
+        zip -r publish.zip .
+      working-directory: ./src/ToyCompany/ToyCompany.Website/bin/Release/netcoreapp6.0.25/publish
+
+    - name: Upload website as workflow artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: website
+        path: ./src/ToyCompany/ToyCompany.Website/bin/Release/netcoreapp6.0.25/publish/publish.zip
+
+

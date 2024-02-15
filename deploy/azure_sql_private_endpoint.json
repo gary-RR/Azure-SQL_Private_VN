@@ -1,0 +1,699 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.25.53.49325",
+      "templateHash": "10543163443938607586"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "resourceNameSuffix": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]",
+      "maxLength": 13,
+      "metadata": {
+        "description": "A unique suffix to add to resource names that need to be globally unique."
+      }
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "cosmo"
+    },
+    "sqlServerName": {
+      "type": "string",
+      "defaultValue": "[format('sql-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]"
+    },
+    "adminLoginName": {
+      "type": "string"
+    },
+    "createWindowsServer1": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "createLinuxServer1": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "createWindowsDesktop1": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "databaseName": {
+      "type": "string"
+    },
+    "privateEndpointName": {
+      "type": "string",
+      "defaultValue": "[format('pep-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]"
+    },
+    "vmWindowsServer1Name": {
+      "type": "string",
+      "defaultValue": "[format('vm-{0}-hr', parameters('appName'))]",
+      "maxLength": 15
+    },
+    "vmWindowsDesktop1Name": {
+      "type": "string",
+      "defaultValue": "[format('vm-{0}-client', parameters('appName'))]",
+      "maxLength": 15
+    },
+    "vmWLinuxName": {
+      "type": "string",
+      "defaultValue": "[format('vm-{0}-stores', parameters('appName'))]"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A0"
+    },
+    "vmWindowsLoginUser": {
+      "type": "string"
+    },
+    "vmLinuxLoginUser": {
+      "type": "string"
+    },
+    "vmWindowsLoginPassword": {
+      "type": "securestring"
+    },
+    "vmLinuxLoginPassword": {
+      "type": "securestring"
+    },
+    "privateDnsZoneName": {
+      "type": "string",
+      "defaultValue": "[format('prv-dns-zone-{0}{1}', parameters('appName'), environment().suffixes.sqlServerHostname)]",
+      "maxLength": 63
+    },
+    "privateDnsZoneLinkName": {
+      "type": "string",
+      "defaultValue": "[format('prv-dns-zone-vnet-lnk{0}{1}', parameters('appName'), environment().suffixes.sqlServerHostname)]",
+      "maxLength": 63
+    },
+    "environmentType": {
+      "type": "string",
+      "allowedValues": [
+        "Production",
+        "Test"
+      ],
+      "metadata": {
+        "description": "Select the type of environment you want to provision. Allowed values are Production and Test."
+      }
+    }
+  },
+  "variables": {
+    "environmentConfigurationMap": {
+      "Production": {
+        "appServicePlan": {
+          "sku": {
+            "name": "S1",
+            "capacity": 1
+          }
+        },
+        "storageAccount": {
+          "sku": {
+            "name": "Standard_LRS"
+          }
+        },
+        "sqlDatabase": {
+          "sku": {
+            "name": "Standard",
+            "tier": "Standard"
+          }
+        }
+      },
+      "Test": {
+        "appServicePlan": {
+          "sku": {
+            "name": "F1"
+          }
+        },
+        "storageAccount": {
+          "sku": {
+            "name": "Standard_GRS"
+          }
+        },
+        "sqlDatabase": {
+          "sku": {
+            "name": "Standard",
+            "tier": "Standard"
+          }
+        }
+      }
+    },
+    "privateDnsZoneGroupName": "[format('{0}-PrivateDnsZoneGroup', parameters('appName'))]",
+    "nicNameWindowServer1": "[format('nic-{0}', parameters('vmWindowsServer1Name'))]",
+    "nicNameLinux": "[format('nic-{0}', parameters('vmWLinuxName'))]",
+    "nicNameWindowsDesktop1": "[format('nic-{0}', parameters('vmWindowsDesktop1Name'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2022-02-01-preview",
+      "name": "[parameters('sqlServerName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "SqlServer"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('adminLoginName')]",
+        "administratorLoginPassword": "[parameters('adminPassword')]",
+        "version": "12.0"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2022-02-01-preview",
+      "name": "[format('{0}/{1}', parameters('sqlServerName'), parameters('databaseName'))]",
+      "location": "[parameters('location')]",
+      "sku": "[variables('environmentConfigurationMap')[parameters('environmentType')].sqlDatabase.sku]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('sqlServerName'), 'sqlFirewallRules')]",
+      "properties": {
+        "endIpAddress": "0.0.0.0",
+        "startIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2023-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('sqlServerName'), 'allowfrontendTraffic')]",
+      "properties": {
+        "startIpAddress": "[parseCidr(reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.frontendSubnet.value.properties.addressPrefix).firstUsable]",
+        "endIpAddress": "[parseCidr(reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.frontendSubnet.value.properties.addressPrefix).lastUsable]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('createWindowsServer1')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('nicNameWindowServer1')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}vmip', parameters('vmWindowsServer1Name'))]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.backendSubnet.value.id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
+      ]
+    },
+    {
+      "condition": "[parameters('createWindowsServer1')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmWindowsServer1Name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmWindowsServer1Name')]",
+          "adminUsername": "[parameters('vmWindowsLoginUser')]",
+          "adminPassword": "[parameters('vmWindowsLoginPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2022-datacenter-core",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "vmdisk1",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameWindowServer1'))]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameWindowServer1'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('createWindowsDesktop1')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('nicNameWindowsDesktop1')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}vmip', parameters('vmWindowsDesktop1Name'))]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.frontendSubnet.value.id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
+      ]
+    },
+    {
+      "condition": "[parameters('createWindowsDesktop1')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmWindowsDesktop1Name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_D2s_v5"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmWindowsServer1Name')]",
+          "adminUsername": "[parameters('vmWindowsLoginUser')]",
+          "adminPassword": "[parameters('vmWindowsLoginPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-11",
+            "sku": "win11-21h2-avd",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "vmdisk1",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameWindowsDesktop1'))]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameWindowsDesktop1'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('createLinuxServer1')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('nicNameLinux')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}vmip', parameters('vmWLinuxName'))]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.frontendSubnet.value.id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
+      ]
+    },
+    {
+      "condition": "[parameters('createLinuxServer1')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmWLinuxName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "osProfile": {
+          "adminUsername": "[parameters('vmLinuxLoginUser')]",
+          "adminPassword": "[parameters('vmLinuxLoginPassword')]",
+          "computerName": "[parameters('vmWLinuxName')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameLinux'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameLinux'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2023-04-01",
+      "name": "[parameters('privateEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.frontendSubnet.value.id]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "sqlServerConnection",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]",
+              "groupIds": [
+                "sqlServer"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateDnsZoneName')]",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('privateDnsZoneName'), parameters('privateDnsZoneLinkName'))]",
+      "location": "global",
+      "properties": {
+        "registrationEnabled": true,
+        "virtualNetwork": {
+          "id": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.vnetId.value]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2023-04-01",
+      "name": "[format('{0}/{1}', parameters('privateEndpointName'), format('{0}-group', parameters('privateEndpointName')))]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "[variables('privateDnsZoneGroupName')]",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vnet",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tenanatID": {
+            "value": "[subscription().tenantId]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.25.53.49325",
+              "templateHash": "3279647221000580341"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "appName": {
+              "type": "string",
+              "defaultValue": "cosmo"
+            },
+            "resourceNameSuffix": {
+              "type": "string",
+              "defaultValue": "[uniqueString(resourceGroup().id)]",
+              "maxLength": 13,
+              "metadata": {
+                "description": "A unique suffix to add to resource names that need to be globally unique."
+              }
+            },
+            "createGateway": {
+              "type": "string",
+              "defaultValue": "yes",
+              "allowedValues": [
+                "yes",
+                "no"
+              ]
+            },
+            "vnetAddressPrefixes": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/16"
+            },
+            "subnet1AddressPrefixes": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/24"
+            },
+            "subnet2AddressPrefixes": {
+              "type": "string",
+              "defaultValue": "10.0.1.0/24"
+            },
+            "subnet3AddressPrefixes": {
+              "type": "string",
+              "defaultValue": "10.0.2.0/24"
+            },
+            "vpnClientAddressPrefix": {
+              "type": "string",
+              "defaultValue": "172.16.201.0/24"
+            },
+            "tenanatID": {
+              "type": "string",
+              "defaultValue": "[subscription().tenantId]"
+            }
+          },
+          "variables": {
+            "aadTenantURL": "[environment().authentication.loginEndpoint]",
+            "aadTenant": "[format('{0}{1}', variables('aadTenantURL'), parameters('tenanatID'))]",
+            "aadIssuer": "[format('https://sts.windows.net/{0}/', parameters('tenanatID'))]",
+            "aadAudience": "41b23e61-6c1e-4545-b367-cd054e0ed4b4",
+            "vnetName": "[format('vnet-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]",
+            "subnet1Name": "frontendSubnet",
+            "subnet2Name": "backendSubnet",
+            "subnet3Name": "gatewaySubnet",
+            "gatewayPublicIPName": "[format('pip-gateway-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]",
+            "vpnName": "[format('vpn-{0}-{1}', parameters('appName'), parameters('resourceNameSuffix'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('vnetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('vnetAddressPrefixes')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "[variables('subnet1Name')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnet1AddressPrefixes')]"
+                    }
+                  },
+                  {
+                    "name": "[variables('subnet2Name')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnet2AddressPrefixes')]"
+                    }
+                  },
+                  {
+                    "name": "[variables('subnet3Name')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnet3AddressPrefixes')]"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2023-05-01",
+              "name": "[variables('gatewayPublicIPName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            {
+              "condition": "[equals(parameters('createGateway'), 'yes')]",
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2021-05-01",
+              "name": "[variables('vpnName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIPName'))]"
+                      },
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[2].id]"
+                      }
+                    }
+                  }
+                ],
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "sku": {
+                  "name": "VpnGw1",
+                  "tier": "VpnGw1"
+                },
+                "enableBgp": false,
+                "activeActive": false,
+                "vpnClientConfiguration": {
+                  "vpnClientAddressPool": {
+                    "addressPrefixes": [
+                      "[parameters('vpnClientAddressPrefix')]"
+                    ]
+                  },
+                  "vpnClientProtocols": [
+                    "OpenVPN"
+                  ],
+                  "vpnAuthenticationTypes": [
+                    "AAD"
+                  ],
+                  "vpnClientRootCertificates": [],
+                  "vpnClientRevokedCertificates": [],
+                  "radiusServers": [],
+                  "vpnClientIpsecPolicies": [],
+                  "aadTenant": "[variables('aadTenant')]",
+                  "aadAudience": "[variables('aadAudience')]",
+                  "aadIssuer": "[variables('aadIssuer')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "frontendSubnet": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[0]]"
+            },
+            "backendSubnet": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[1]]"
+            },
+            "gatewaySubnet": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2021-05-01').subnets[2]]"
+            },
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+            },
+            "gatewayId": {
+              "type": "string",
+              "value": "[if(equals(parameters('createGateway'), 'yes'), resourceId('Microsoft.Network/virtualNetworkGateways', variables('vpnName')), '')]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "sqlServerFullyQualifiedDomainName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Sql/servers', parameters('sqlServerName')), '2022-02-01-preview').fullyQualifiedDomainName]"
+    },
+    "sqlDatabaseName": {
+      "type": "string",
+      "value": "[parameters('databaseName')]"
+    }
+  }
+}

@@ -6,14 +6,14 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 param appName string ='cosmo'
 param sqlServerName string='sql-${appName}-${resourceNameSuffix}'
-param adminLoginName string
 
 param createWindowsServer1 bool=false
 param createLinuxServer1 bool=false
 param createWindowsDesktop1 bool=true
 
+param adminDBLoginName string
 @secure()
-param adminPassword string
+param adminDBPassword string
 
 param databaseName string
 param privateEndpointName string='pep-${appName}-${resourceNameSuffix}'
@@ -27,13 +27,12 @@ param vmWindowsDesktop1Name string='vm-${appName}-client'
 param vmWLinuxName string='vm-${appName}-stores'
 
 param vmSize string='Standard_A0'
+
 param vmWindowsLoginUser string
-param vmLinuxLoginUser string
-
-
 @secure()
 param vmWindowsLoginPassword string
 
+param vmLinuxLoginUser string
 @secure()
 param vmLinuxLoginPassword string
 
@@ -110,8 +109,8 @@ resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
     displayName: 'SqlServer'
   }
   properties: {
-    administratorLogin: adminLoginName
-    administratorLoginPassword: adminPassword
+    administratorLogin: adminDBLoginName
+    administratorLoginPassword: adminDBPassword
     version: '12.0'
   }
 }
@@ -174,7 +173,7 @@ resource vmWindowsServer1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (c
     osProfile: {
       computerName: vmWindowsServer1Name
       adminUsername: vmWindowsLoginUser
-      adminPassword: vmWindowsLoginPassword
+      adminDBPassword: vmWindowsLoginPassword
     }
     storageProfile: {
       imageReference: {
@@ -232,7 +231,7 @@ resource vmWindowsDesktop1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (
     osProfile: {
       computerName: vmWindowsServer1Name
       adminUsername: vmWindowsLoginUser
-      adminPassword: vmWindowsLoginPassword
+      adminDBPassword: vmWindowsLoginPassword
     }
     storageProfile: {
       imageReference: {
@@ -290,7 +289,7 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createLin
     }
     osProfile: {
       adminUsername: vmLinuxLoginUser
-      adminPassword: vmLinuxLoginPassword
+      adminDBPassword: vmLinuxLoginPassword
       computerName: vmWLinuxName
       linuxConfiguration: {
         disablePasswordAuthentication: false
