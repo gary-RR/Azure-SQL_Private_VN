@@ -2,10 +2,7 @@ name: build-website
 
 on: 
   workflow_call:
-
-    permissions:
-        id-token: write
-        contents: read
+    
 jobs: 
    build-application:
     name: Build Application
