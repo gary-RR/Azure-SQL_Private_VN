@@ -13,9 +13,8 @@ jobs:
     - name: Install Donet Core
       uses: actions/setup-dotnet@v3
       with: 
-        dotnet-version: 6.0.418 
+        dotnet-version: 3.1 
 
-        # Adding some notes
     - name: Buikd website
       run: |
         dotnet publish --configuration Release
@@ -24,12 +23,12 @@ jobs:
     - name: Zip publishable website
       run: |
         zip -r publish.zip .
-      working-directory: ./src/ToyCompany/ToyCompany.Website/bin/Release/net6.0.418/publish
+      working-directory: ./src/ToyCompany/ToyCompany.Website/bin/Release/netcoreapp3.1/publish
 
     - name: Upload website as workflow artifact
       uses: actions/upload-artifact@v3
       with:
         name: website
-        path: ./src/ToyCompany/ToyCompany.Website/bin/Release/net6.0.418/publish/publish.zip
+        path: ./src/ToyCompany/ToyCompany.Website/bin/Release/netcoreapp3.1/publish/publish.zip
 
 
