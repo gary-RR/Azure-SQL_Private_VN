@@ -20,3 +20,17 @@ jobs:
   # Lint the Bicep file.
   lint:
     uses: ./.github/workflows/lint.yml
+
+  deploy-test:
+      uses: ./.github/workflows/deploy-vnet.yml
+      needs: [build, lint]
+      with:
+        environmentType: Test
+        resourceGroupName: rg-AzureSQLTest
+        appName: cosmo
+        createGateway: yes
+        # vnetAddressPrefixes: '10.0.0.0/16'
+        # subnet1AddressPrefixes: '10.0.0.0/24'
+        # subnet2AddressPrefixes: '10.0.1.0/24'
+        # subnet3AddressPrefixes: '10.0.2.0/24'
+        # vpnClientAddressPrefix: '172.16.201.0/24'

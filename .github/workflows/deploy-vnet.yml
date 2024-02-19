@@ -1,0 +1,49 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      resourceGroupName:
+        required: true
+        type: string
+      environmentType:
+        required: true
+        type: string
+      appName:
+        required: true
+        type: string
+      createGateway:
+        required: true
+        type: string       
+
+jobs:
+  validate-vnet:
+     runs-on: ubuntu-latest
+     steps:
+     - uses: actions/checkout@v3
+     - uses: azure/login@v1
+       name: Sign in to Azure
+       with:
+         client-id: ${{ secrets.AZURE_CLIENT_ID_TEST }}
+         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+     - if: inputs.environmentType != 'Production'
+       uses: azure/arm-deploy@v1
+       name: Run preflight validation
+       with:
+         deploymentName: ${{ github.run_number }}
+         resourceGroupName: ${{ inputs.resourceGroupName }}
+         template: ./deploy/modules/create_vnet_and_vpn.bicep
+         parameters: >
+           environmentType=${{ inputs.environmentType }}
+           appName=${{ inputs.appName }}
+           createGateway=${{ inputs.createGateway }}
+          #  vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
+          #  subnet1AddressPrefixes=${{ inputs.subnet1AddressPrefixes }}
+          #  subnet2AddressPrefixes=${{ inputs.subnet2AddressPrefixes }}
+          #  subnet3AddressPrefixes=${{ inputs.subnet3AddressPrefixes }}
+          #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
+         deploymentMode: Validate
+
+
+

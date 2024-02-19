@@ -1,9 +1,6 @@
+
 param location string=resourceGroup().location
 param appName string='cosmo'
-
-@description('A unique suffix to add to resource names that need to be globally unique.')
-@maxLength(13)
-param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 @allowed( [
   'yes' 
@@ -11,20 +8,13 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 ])
 param createGateway string='yes'
 
-// @allowed( [
-//   'test'
-//   'prod'
-// ])
-// param environment
-
-
 param vnetAddressPrefixes string='10.0.0.0/16'
 param subnet1AddressPrefixes string='10.0.0.0/24'
 param subnet2AddressPrefixes string='10.0.1.0/24'
 param subnet3AddressPrefixes string='10.0.2.0/24'
 param vpnClientAddressPrefix string='172.16.201.0/24'
 
-param tenanatID string=subscription().tenantId
+var tenanatID=subscription().tenantId
 // The following returns "https://login.microsoftonline.com" which is a best practice raher hard coding it
 var aadTenantURL=environment().authentication.loginEndpoint
 var aadTenant='${aadTenantURL}${tenanatID}'
@@ -38,6 +28,7 @@ var aadIssuer='https://sts.windows.net/${tenanatID}/'
 // Microsoft Azure operated by 21Vianet: 49f817b6-84ae-4cc0-928c-73f27289b3aa
 var aadAudience='41b23e61-6c1e-4545-b367-cd054e0ed4b4'
 
+var resourceNameSuffix=uniqueString(resourceGroup().id)
 var vnetName= 'vnet-${appName}-${resourceNameSuffix}'
 var subnet1Name='frontendSubnet'
 var subnet2Name='backendSubnet'

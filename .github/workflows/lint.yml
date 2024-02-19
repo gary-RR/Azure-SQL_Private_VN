@@ -12,4 +12,5 @@ jobs:
 
     - name: Lint code
       run: |
+        az bicep build --file ./deploy/modules/create_vnet_and_vpn.bicep
         az bicep build --file ./deploy/azure_sql_private_endpoint.bicep

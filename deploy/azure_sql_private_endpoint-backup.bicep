@@ -6,10 +6,6 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 param appName string ='cosmo'
 
-param vnetId string
-param frontendSubnet object
-param backendSubnet object
-
 param createWindowsServer1 bool=false
 param createLinuxServer1 bool=false
 param createWindowsDesktop1 bool=true
@@ -89,13 +85,13 @@ var nicNameWindowServer1='nic-${vmWindowsServer1Name}'
 var nicNameLinux='nic-${vmWLinuxName}'
 var nicNameWindowsDesktop1='nic-${vmWindowsDesktop1Name}'
 
-// module createVnet 'modules/create_vnet_and_vpn.bicep' = {
-//   name: 'vnet'
-//   params: {
-//     location: location
-//     tenanatID : subscription().tenantId
-//   }
-// }
+module createVnet 'modules/create_vnet_and_vpn.bicep' = {
+  name: 'vnet'
+  params: {
+    location: location
+    tenanatID : subscription().tenantId
+  }
+}
 
 resource sqlServer 'Microsoft.Sql/servers@2022-02-01-preview' = {
   name: sqlServerName
@@ -130,8 +126,8 @@ resource allowFrontEndVnetTrafficFirewallRules 'Microsoft.Sql/servers/firewallRu
   parent: sqlServer
   name: 'allowfrontendTraffic'
   properties: {
-    startIpAddress: parseCidr(frontendSubnet.properties.addressPrefix).firstUsable
-    endIpAddress: parseCidr(frontendSubnet.properties.addressPrefix).lastUsable //creatVnet.outputs.endIPAddress
+    startIpAddress: parseCidr(createVnet.outputs.frontendSubnet.properties.addressPrefix).firstUsable
+    endIpAddress: parseCidr(createVnet.outputs.frontendSubnet.properties.addressPrefix).lastUsable //creatVnet.outputs.endIPAddress
   }  
   
 }
@@ -146,15 +142,15 @@ resource nicWindowsServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: backendSubnet.id
+            id: createVnet.outputs.backendSubnet.id
           }
         }
       }
     ]
   }
-  // dependsOn: [
-  //   createVnet
-  // ]
+  dependsOn: [
+    createVnet
+  ]
 }
 
 
@@ -205,15 +201,15 @@ resource nicWindowsDesktop1 'Microsoft.Network/networkInterfaces@2020-06-01' = i
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: frontendSubnet.id
+            id: createVnet.outputs.frontendSubnet.id
           }
         }
       }
     ]
   }
-  // dependsOn: [
-  //   createVnet
-  // ]
+  dependsOn: [
+    createVnet
+  ]
 }
 
 resource vmWindowsDesktop1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createWindowsDesktop1) {
@@ -264,15 +260,15 @@ resource nicLinuxServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if (
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: frontendSubnet.id
+            id: createVnet.outputs.frontendSubnet.id
           }
         }
       }
     ]
   }
-  // dependsOn: [
-  //   createVnet
-  // ]
+  dependsOn: [
+    createVnet
+  ]
 }
 
 resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-06-01' = if (createLinuxServer1) {
@@ -324,7 +320,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   properties: {
     subnet: {
-      id: frontendSubnet.id 
+      id: createVnet.outputs.frontendSubnet.id 
     }
     privateLinkServiceConnections: [
       {
@@ -354,7 +350,7 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   properties: {
     registrationEnabled: true
     virtualNetwork: {
-      id: vnetId
+      id: createVnet.outputs.vnetId
     }
   }
 }

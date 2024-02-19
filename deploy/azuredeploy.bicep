@@ -106,7 +106,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 
 resource vnetName_frontendSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   parent: vnet
-  name: '${frontendSubnet}'
+  name: frontendSubnet
   properties: {
     addressPrefix: '172.16.0.0/24'
     serviceEndpoints: [
@@ -121,7 +121,7 @@ resource vnetName_frontendSubnet 'Microsoft.Network/virtualNetworks/subnets@2020
 
 resource vnetName_backendSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   parent: vnet
-  name: '${backendSubnet}'
+  name: backendSubnet
   properties: {
     addressPrefix: '172.16.1.0/24'
     privateEndpointNetworkPolicies: 'Disabled'
@@ -131,7 +131,7 @@ resource vnetName_backendSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-
 
 resource vnetName_gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   parent: vnet
-  name: '${gatewaySubnet}'
+  name: gatewaySubnet
   properties: {
     addressPrefix: '172.16.255.0/27'
     privateEndpointNetworkPolicies: 'Disabled'
@@ -175,7 +175,7 @@ resource Microsoft_Sql_servers_stack 'Microsoft.Sql/servers@2020-08-01-preview' 
 
 resource stackName_database 'Microsoft.Sql/servers/databases@2020-08-01-preview' = {
   parent: Microsoft_Sql_servers_stack
-  name: '${databaseName}'
+  name: databaseName
   location: location_var
   tags: {
     displayName: 'Database'
