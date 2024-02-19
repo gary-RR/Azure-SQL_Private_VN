@@ -25,7 +25,7 @@ jobs:
       uses: ./.github/workflows/deploy-vnet.yml
       needs: [build, lint]
       with:
-        environmentType: Test
+        # environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
         createGateway: yes

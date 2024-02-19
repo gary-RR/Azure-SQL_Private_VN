@@ -5,10 +5,7 @@ on:
     inputs:
       resourceGroupName:
         required: true
-        type: string
-      environmentType:
-        required: true
-        type: string
+        type: string      
       appName:
         required: true
         type: string
@@ -41,8 +38,7 @@ jobs:
          deploymentName: ${{ github.run_number }}
          resourceGroupName: ${{ inputs.resourceGroupName }}
          template: ./deploy/modules/create_vnet_and_vpn.bicep
-         parameters: >
-           environmentType=${{ inputs.environmentType }}
+         parameters: >           
            appName=${{ inputs.appName }}
            createGateway=${{ inputs.createGateway }}
           #  vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
