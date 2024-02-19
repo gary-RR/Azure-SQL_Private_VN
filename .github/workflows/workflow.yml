@@ -26,7 +26,7 @@ jobs:
       needs: [build, lint]
       with:
         environmentType: Test
-        resourceGroupName: Azure-SQL_Private_VN-test
+        resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
         createGateway: yes
       secrets:
