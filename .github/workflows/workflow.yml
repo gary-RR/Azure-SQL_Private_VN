@@ -29,6 +29,10 @@ jobs:
         resourceGroupName: rg-AzureSQLTest
         appName: cosmo
         createGateway: yes
+      secrets:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         # vnetAddressPrefixes: '10.0.0.0/16'
         # subnet1AddressPrefixes: '10.0.0.0/24'
         # subnet2AddressPrefixes: '10.0.1.0/24'
