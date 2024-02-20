@@ -21,7 +21,7 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
 
-  validate-vnet-test:
+  deploy-vnet:
       uses: ./.github/workflows/deploy-vnet.yml
       needs: [build, lint]
       with:
