@@ -9,6 +9,9 @@ on:
       appName:
         required: true
         type: string
+      environmentType:
+        required: true
+        type: string
       createGateway:
         required: true
         type: string       
@@ -23,6 +26,8 @@ on:
 jobs:
   validate-vnet:
      runs-on: ubuntu-latest
+     outputs: 
+      frontendSubnet: ${{ steps.validate-vnet.outputs.frontendSubnet }}
      steps:
      - uses: actions/checkout@v3
      - uses: azure/login@v1

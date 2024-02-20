@@ -12,31 +12,22 @@ on:
       appName:
         required: true
         type: string
-      createGateway:
+      vnetId:
         required: true
         type: string
-      vnetAddressPrefixes:
+      frontendSubnet:
         required: true
         type: string  
-      subnet1AddressPrefixes: 
-        required: true
-        type: string  
-      subnet2AddressPrefixes:
-        required: true
-        type: string
-      subnet3AddressPrefixes:
-        required: true
-        type: string
-      vpnClientAddressPrefix:
-        required: true
-        type: string
+      backendSubnet:
+          required: true
+          type: string   
       createWindowsServer1:
         required: true
         type: boolean
       createLinuxServer1:
         required: true
         type: boolean
-      createWindowsDesktop1:
+      createWindowsDesktop:
         required: true
         type: boolean
       adminDBLoginName:
@@ -60,23 +51,23 @@ on:
       AZURE_TENANT_ID:
         required: true
       AZURE_SUBSCRIPTION_ID:
-        required: true
-      reviewApiKey:
-        required: true
-      sqlServerAdministratorLoginPassword:
-        required: true   
+        required: true     
       adminDBPassword:
         required: true             
       vmWindowsLoginPassword:
         required: true
       vmLinuxLoginPassword:
         required: true
-        
-
+      
 jobs:
   validate:
      runs-on: ubuntu-latest
      steps:
+    #  - name: Extract outputs
+    #    id: extract-subnets
+    #    run: |
+    #      echo "::set-output name=frontendSubnet::$(echo '${{ inputs.frontendSubnet }}' | jq -c '.frontendSubnet')"
+    #      echo "::set-output name=backendSubnet::$(echo '${{ inputs.backendSubnet }}' | jq -c '.backendSubnet')"         
      - uses: actions/checkout@v3
      - uses: azure/login@v1
        name: Sign in to Azure
@@ -90,16 +81,25 @@ jobs:
        with:
          deploymentName: ${{ github.run_number }}
          resourceGroupName: ${{ inputs.resourceGroupName }}
-         template: ./deploy/modules/create_vnet_and_vpn.bicep
+         template: ./deploy/azure_sql_private_endpoint.bicep
          parameters: >
            environmentType=${{ inputs.environmentType }}
            appName=${{ inputs.appName }}
-           createGateway=${{ inputs.createGateway }}
-           vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
-           subnet1AddressPrefixes=${{ inputs.subnet1AddressPrefixes }}
-           subnet2AddressPrefixes=${{ inputs.subnet2AddressPrefixes }}
-           subnet3AddressPrefixes=${{ inputs.subnet3AddressPrefixes }}
-           vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
+           frontendSubnet=${{ fromJSON(inputs.frontendSubnet) }}
+           backendSubnet=${{ fromJSON(inputs.backendSubnet) }}
+           vnetId=${{ inputs.vnetId }}
+           createWindowsServer1=${{ inputs.createWindowsServer1 }}
+           createLinuxServer1=${{ inputs.createLinuxServer1 }}
+           createWindowsDesktop=${{ inputs.createWindowsDesktop }}
+           adminDBLoginName=${{ inputs.adminDBLoginName }}
+           adminDBPassword=${{ secrets.adminDBPassword }}
+           databaseName=${{ inputs.databaseName }}
+           vmSize=${{ inputs.vmSize }}
+           vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
+           vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
+           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+           environmentType=${{ inputs.environmentType }}
          deploymentMode: Validate
 
 

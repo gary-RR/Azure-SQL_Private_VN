@@ -21,20 +21,41 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yml
 
-  deploy-test:
+  validate-vnet-test:
       uses: ./.github/workflows/deploy-vnet.yml
       needs: [build, lint]
       with:
-        # environmentType: Test
+        environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
-        createGateway: yes
+        createGateway: yes       
       secrets:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        # vnetAddressPrefixes: '10.0.0.0/16'
-        # subnet1AddressPrefixes: '10.0.0.0/24'
-        # subnet2AddressPrefixes: '10.0.1.0/24'
-        # subnet3AddressPrefixes: '10.0.2.0/24'
-        # vpnClientAddressPrefix: '172.16.201.0/24'
+
+#   validate-infra-test:
+#       uses: ./.github/workflows/deploy-infra.yml 
+#       needs: [build, lint]
+#       with:
+#         environmentType: Test
+#         resourceGroupName: AzureSQLPrivateVNTest
+#         appName: cosmo
+#         frontendSubnet: {{ steps.needs.validate-vnet-test.outputs }}
+#         backendSubnet: 
+#         vnetId: 
+#         createWindowsServer1: 
+#         createLinuxServer1: 
+#         createWindowsDesktop: 
+#         adminDBLoginName: 
+#         databaseName: 
+#         vmSize:  
+#         vmWindowsLoginUser: 
+#         vmLinuxLoginUser:                   
+#       secrets:
+#           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
+#           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+#           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+#           adminDBPassword: 
+#           vmWindowsLoginPassword: 
+#           vmLinuxLoginPassword:
