@@ -14,7 +14,31 @@ on:
         type: string
       createGateway:
         required: true
-        type: string       
+        type: string      
+      createWindowsServer1:
+        required: true
+        type: boolean
+      createLinuxServer1:
+        required: true
+        type: boolean
+      createWindowsDesktop:
+        required: true
+        type: boolean
+      adminDBLoginName:
+        required: true
+        type: string
+      databaseName:
+        required: true
+        type: string
+      vmSize:
+        required: true
+        type: string
+      vmWindowsLoginUser:
+        required: true
+        type: string
+      vmLinuxLoginUser:
+        required: true
+        type: string         
     secrets:
       AZURE_CLIENT_ID:
         required: true
@@ -22,12 +46,16 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
+      adminDBPassword:
+        required: true             
+      vmWindowsLoginPassword:
+        required: true
+      vmLinuxLoginPassword:
+        required: true
 
 jobs:
   validate-vnet:
-    runs-on: ubuntu-latest
-    # outputs: 
-    #  frontendSubnet: ${{ steps.validate-vnet.outputs.frontendSubnet }}
+    runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@v3
     - uses: azure/login@v1
@@ -55,7 +83,7 @@ jobs:
 
   deploy-vnet:
       runs-on: ubuntu-latest
-      outputs: 
+      outputs:       
         frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
         backendSubnet: ${{ steps.deploy-vnet.outputs.backendSubnet }}
         vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
@@ -84,4 +112,41 @@ jobs:
           #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
 
 
-
+  deploy-infra:
+    runs-on: ubuntu-latest
+    needs: deploy-vnet
+    steps:               
+    - uses: actions/checkout@v3
+    - uses: azure/login@v1
+      name: Sign in to Azure
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - if: inputs.environmentType != 'Production'
+      uses: azure/arm-deploy@v1
+      name: Run preflight validation
+      with:
+        deploymentName: ${{ github.run_number }}
+        resourceGroupName: ${{ inputs.resourceGroupName }}
+        template: ./deploy/azure_sql_private_endpoint.bicep
+        parameters: >
+          environmentType: ${{ inputs.environmentType }}
+          appName: ${{ inputs.appName }}
+          frontendSubnet=${{needs.deploy-vnet.ouputs.frontendSubnet }}
+          backendSubnet=${{ needs.deploy-vnet.ouputs.backendSubnet }}
+          vnetId=${{ needs.deploy-vnet.ouputs.vnetId }}
+          createWindowsServer1=${{ inputs.createWindowsServer1 }}
+          createLinuxServer1=${{ inputs.createLinuxServer1 }}
+          createWindowsDesktop=${{ inputs.createWindowsDesktop }}
+          adminDBLoginName=${{ inputs.adminDBLoginName }}
+          adminDBPassword=${{ secrets.adminDBPassword }}
+          databaseName=${{ inputs.databaseName }}
+          vmSize=${{ inputs.vmSize }}
+          vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
+          vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+          vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
+          vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+          environmentType=${{ inputs.environmentType }}
+               #  deploymentMode: Validate
+       

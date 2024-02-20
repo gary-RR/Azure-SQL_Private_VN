@@ -64,3 +64,8 @@ echo "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
 #Clean up
 az group delete --resource-group AzureSQLPrivateVNTest --yes --no-wait
 az group delete --resource-group AzureSQLPrivateVNProd --yes --no-wait
+
+
+git add .
+git commit -m "Multi env and workflow components part1-fix14"
+git push

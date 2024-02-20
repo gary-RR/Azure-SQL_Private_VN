@@ -28,22 +28,7 @@ jobs:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
-        createGateway: yes       
-      secrets:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-  validate-infra-test:
-      uses: ./.github/workflows/deploy-infra.yml 
-      needs: [deploy-vnet]
-      with:
-        environmentType: Test
-        resourceGroupName: AzureSQLPrivateVNTest
-        appName: cosmo
-        frontendSubnet: ${{ needs.deploy-vnet.outputs.frontendSubnet }}
-        backendSubnet: ${{ needs.deploy-vnet.outputs.backendSubnet }}
-        vnetId: ${{ needs.deploy-vnet.outputs.vnetId }}
+        createGateway: yes 
         createWindowsServer1: true
         createLinuxServer1: true
         createWindowsDesktop: true
@@ -51,7 +36,7 @@ jobs:
         databaseName: slaesfloor
         vmSize: 'Standard_A0'  
         vmWindowsLoginUser: gary
-        vmLinuxLoginUser: gary                  
+        vmLinuxLoginUser: gary         
       secrets:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -59,3 +44,29 @@ jobs:
           adminDBPassword: ${{ secrets.ADMINDBPASSWORD }}
           vmWindowsLoginPassword: ${{ secrets.VMWINDOWSLOGINPASSWORD }}
           vmLinuxLoginPassword: ${{ secrets.VMLINUXLOGINPASSWORD }}
+
+#   validate-infra-test:
+#       uses: ./.github/workflows/deploy-infra.yml 
+#       needs: [deploy-vnet]
+#       with:
+#         environmentType: Test
+#         resourceGroupName: AzureSQLPrivateVNTest
+#         appName: cosmo
+#         frontendSubnet: ${{ needs.deploy-vnet.outputs.frontendSubnet }}
+#         backendSubnet: ${{ needs.deploy-vnet.outputs.backendSubnet }}
+#         vnetId: ${{ needs.deploy-vnet.outputs.vnetId }}
+#         createWindowsServer1: true
+#         createLinuxServer1: true
+#         createWindowsDesktop: true
+#         adminDBLoginName: gary
+#         databaseName: slaesfloor
+#         vmSize: 'Standard_A0'  
+#         vmWindowsLoginUser: gary
+#         vmLinuxLoginUser: gary                  
+#       secrets:
+#           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
+#           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+#           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+#           adminDBPassword: ${{ secrets.ADMINDBPASSWORD }}
+#           vmWindowsLoginPassword: ${{ secrets.VMWINDOWSLOGINPASSWORD }}
+#           vmLinuxLoginPassword: ${{ secrets.VMLINUXLOGINPASSWORD }}
