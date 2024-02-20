@@ -1,3 +1,4 @@
+@description('mmm')
 param location string=resourceGroup().location
 
 @description('A unique suffix to add to resource names that need to be globally unique.')

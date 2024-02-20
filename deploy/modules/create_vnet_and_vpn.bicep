@@ -1,4 +1,4 @@
-
+@description('mnnn')
 param location string=resourceGroup().location
 param appName string='cosmo'
 
