@@ -56,9 +56,9 @@ jobs:
   deploy-vnet:
       runs-on: ubuntu-latest
       outputs: 
-      frontendSubnet: ${{ steps.validate-vnet.outputs.frontendSubnet }}
-      backendSubnet: ${{ steps.validate-vnet.outputs.backendSubnet }}
-      vnetId: ${{ steps.validate-vnet.outputs.vnetId }}
+        frontendSubnet: ${{ steps.validate-vnet.outputs.frontendSubnet }}
+        backendSubnet: ${{ steps.validate-vnet.outputs.backendSubnet }}
+        vnetId: ${{ steps.validate-vnet.outputs.vnetId }}
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
