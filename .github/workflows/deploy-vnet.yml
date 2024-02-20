@@ -82,6 +82,7 @@ jobs:
         deploymentMode: Validate
 
   deploy-vnet:
+      needs: validate-vnet
       runs-on: ubuntu-latest
       outputs:       
         frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
@@ -131,8 +132,8 @@ jobs:
         resourceGroupName: ${{ inputs.resourceGroupName }}
         template: ./deploy/azure_sql_private_endpoint.bicep
         parameters: >
-          environmentType: ${{ inputs.environmentType }}
-          appName: ${{ inputs.appName }}
+          environmentType=${{ inputs.environmentType }}
+          appName=${{ inputs.appName }}
           frontendSubnet=${{needs.deploy-vnet.ouputs.frontendSubnet }}
           backendSubnet=${{ needs.deploy-vnet.ouputs.backendSubnet }}
           vnetId=${{ needs.deploy-vnet.ouputs.vnetId }}
