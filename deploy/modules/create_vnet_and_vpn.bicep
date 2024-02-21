@@ -139,5 +139,5 @@ output backendSubnet object=vnet.properties.subnets[1]
 output gatewaySubnet object=vnet.properties.subnets[2] 
 output vnetId string=vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
-output test string='/subscriptionse6566f19-3eb5-436b-904f-fdd540b4fd58resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnet-cosmo-qxb7mehrcb4hk'
+output test string='/subscriptionse6566f193eb5436b904ffdd540b4fd58resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
 
