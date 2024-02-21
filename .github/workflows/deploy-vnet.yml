@@ -92,6 +92,7 @@ jobs:
         frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
         backendSubnet: ${{ steps.deploy-vnet.outputs.backendSubnet }}
         vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
+        vnetId1: ${{steps.getVnetId.outputs.vnetId1}}
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
@@ -114,9 +115,10 @@ jobs:
             createGateway=${{ inputs.createGateway }}
 
       - name: Echo frontendSubnet
-        run: echo "::set-output name=frontendAddressPrefix::${{ fromJson(steps.deploy-vnet.outputs.frontendSubnet).properties.addressPrefix }}"  #"::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
+        run: echo "::set-output name=frontendAddressPrefix::${{ steps.deploy-vnet.outputs.frontendSubnet}}"  #"::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
       - name: Echo vnetID  
-        run: echo "::set-output name=frontendSubnet::${{ fromJson(steps.deploy-vnet.outputs.vnetId) }}"
+        id: getVnetId
+        run: echo "::set-output name=vnetId1::${{ fromJson(steps.deploy-vnet.outputs.vnetId) }}"
         
   deploy-infra:    
     runs-on: ubuntu-latest
@@ -139,7 +141,7 @@ jobs:
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
-          vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
+          vnetId=${{ needs.deploy-vnet.outputs.vnetId1 }}
           frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
           backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
