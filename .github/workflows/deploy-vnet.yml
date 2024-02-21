@@ -141,7 +141,7 @@ jobs:
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
-          vnetId=${{ needs.deploy-vnet.outputs.vnetId1 }}
+          vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
           frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
           backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
