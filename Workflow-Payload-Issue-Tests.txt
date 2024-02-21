@@ -1,25 +1,3 @@
-jobs:
-  deploy-vnet:
-    # ... Other job configuration ...
-    steps:
-      # ... Other steps ...
-      - name: Extract frontendSubnet address prefix
-        id: extract-frontend-prefix
-        run: echo "::set-output name=frontendAddressPrefix::${{ fromJson(steps.deploy-vnet.outputs.frontendSubnet).properties.addressPrefix }}"
-
-  deploy-infra:
-    # ... Other job configuration ...
-    steps:
-      - name: Deploy infrastructure
-        uses: azure/arm-deploy@v1
-        with:
-          # Other parameters...
-          parameters: >
-            frontendSubnet=${{ needs.deploy-vnet.outputs.frontendAddressPrefix }}
-        
-
-/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk
-
 ${{ needs.deploy-vnet.outputs.vnetId }}
 ${{ needs.deploy-vnet.outputs.frontendSubnet }}
 ${{ needs.deploy-vnet.outputs.backendSubnet }}
@@ -43,3 +21,9 @@ Doesn't work
 
 Works
 '/subscriptionse6566f193eb5436b904ffdd540b4fd58resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
+
+Works
+'/subscriptionse6566f193eb5436b904ffdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
+
+
+'/subscriptionse/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
