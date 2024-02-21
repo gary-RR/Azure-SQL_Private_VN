@@ -29,9 +29,9 @@ jobs:
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
         createGateway: yes 
-        createWindowsServer1: true
-        createLinuxServer1: true
-        createWindowsDesktop: true
+        createWindowsServer1: false
+        createLinuxServer1: false
+        createWindowsDesktop: false
         adminDBLoginName: gary
         databaseName: slaesfloor
         vmSize: 'Standard_A0'  
