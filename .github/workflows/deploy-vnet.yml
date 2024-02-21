@@ -85,7 +85,7 @@ jobs:
   #       deploymentMode: Validate
 
   deploy-vnet:
-      environment: ${{ inputs.environmentType }}
+      # environment: ${{ inputs.environmentType }}
       # needs: validate-vnet
       runs-on: ubuntu-latest
       outputs:       
@@ -139,9 +139,9 @@ jobs:
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
-          frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
-          backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}
           vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
+          frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
+          backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}          
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop=${{ inputs.createWindowsDesktop }}
@@ -153,6 +153,7 @@ jobs:
           vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
-          environmentType=${{ inputs.environmentType }}
+         
+
               
        
