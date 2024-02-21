@@ -1,0 +1,45 @@
+jobs:
+  deploy-vnet:
+    # ... Other job configuration ...
+    steps:
+      # ... Other steps ...
+      - name: Extract frontendSubnet address prefix
+        id: extract-frontend-prefix
+        run: echo "::set-output name=frontendAddressPrefix::${{ fromJson(steps.deploy-vnet.outputs.frontendSubnet).properties.addressPrefix }}"
+
+  deploy-infra:
+    # ... Other job configuration ...
+    steps:
+      - name: Deploy infrastructure
+        uses: azure/arm-deploy@v1
+        with:
+          # Other parameters...
+          parameters: >
+            frontendSubnet=${{ needs.deploy-vnet.outputs.frontendAddressPrefix }}
+        
+
+/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk
+
+${{ needs.deploy-vnet.outputs.vnetId }}
+${{ needs.deploy-vnet.outputs.frontendSubnet }}
+${{ needs.deploy-vnet.outputs.backendSubnet }}
+
+{"name":"frontendSubnet","id":"/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk/subnets/frontendSubnet","etag":"W/\"86e55076-3bea-4c77-afd4-79a310eb972b\"","properties":{"provisioningState":"Succeeded","addressPrefix":"10.0.0.0/24","delegations":[],"privateEndpointNetworkPolicies":"Disabled","privateLinkServiceNetworkPolicies":"Enabled"},"type":"Microsoft.Network/virtualNetworks/subnets"}
+
+Doesn't work
+/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk
+
+Works
+'/subscriptionsnnnfvhfdggfshghtrwssdfghhgdddffggfffewssssssyyff'
+
+Works
+'/subscriptionsnnnfvh-fdggfshghtrwssdfghhgdddffggfffewssssssyyff'
+
+Works
+'/subscriptionsnnnfvh-fdggfshghtrwss-dfghhgdddffggfffewssssssyyff'
+
+Doesn't work
+'/subscriptionse6566f19-3eb5-436b-904f-fdd540b4fd58resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnet-cosmo-qxb7mehrcb4hk'
+
+Works
+'/subscriptionse6566f193eb5436b904ffdd540b4fd58resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
