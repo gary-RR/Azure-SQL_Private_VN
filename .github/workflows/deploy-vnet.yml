@@ -55,38 +55,38 @@ on:
 
 jobs:
   
-  validate-vnet:
-    environment: ${{ inputs.environmentType }}
-    runs-on: ubuntu-latest  
-    steps:
-    - uses: actions/checkout@v3
-    - uses: azure/login@v1
-      id: validate-vnet
-      name: Sign in to Azure
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - if: inputs.environmentType != 'Production'
-      uses: azure/arm-deploy@v1
-      name: Run preflight validation
-      with:
-        deploymentName: ${{ github.run_number }}
-        resourceGroupName: ${{ inputs.resourceGroupName }}
-        template: ./deploy/modules/create_vnet_and_vpn.bicep
-        parameters: >           
-          appName=${{ inputs.appName }}
-          createGateway=${{ inputs.createGateway }}
-         #  vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
-         #  subnet1AddressPrefixes=${{ inputs.subnet1AddressPrefixes }}
-         #  subnet2AddressPrefixes=${{ inputs.subnet2AddressPrefixes }}
-         #  subnet3AddressPrefixes=${{ inputs.subnet3AddressPrefixes }}
-         #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
-        deploymentMode: Validate
+  # validate-vnet:
+  #   environment: ${{ inputs.environmentType }}
+  #   runs-on: ubuntu-latest  
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: azure/login@v1
+  #     id: validate-vnet
+  #     name: Sign in to Azure
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   - if: inputs.environmentType != 'Production'
+  #     uses: azure/arm-deploy@v1
+  #     name: Run preflight validation
+  #     with:
+  #       deploymentName: ${{ github.run_number }}
+  #       resourceGroupName: ${{ inputs.resourceGroupName }}
+  #       template: ./deploy/modules/create_vnet_and_vpn.bicep
+  #       parameters: >           
+  #         appName=${{ inputs.appName }}
+  #         createGateway=${{ inputs.createGateway }}
+  #        #  vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
+  #        #  subnet1AddressPrefixes=${{ inputs.subnet1AddressPrefixes }}
+  #        #  subnet2AddressPrefixes=${{ inputs.subnet2AddressPrefixes }}
+  #        #  subnet3AddressPrefixes=${{ inputs.subnet3AddressPrefixes }}
+  #        #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
+  #       deploymentMode: Validate
 
   deploy-vnet:
       environment: ${{ inputs.environmentType }}
-      needs: validate-vnet
+      # needs: validate-vnet
       runs-on: ubuntu-latest
       outputs:       
         frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
@@ -111,13 +111,10 @@ jobs:
           parameters: >           
             appName=${{ inputs.appName }}
             createGateway=${{ inputs.createGateway }}
-          #  vnetAddressPrefixes=${{ inputs.vnetAddressPrefixes }}
-          #  subnet1AddressPrefixes=${{ inputs.subnet1AddressPrefixes }}
-          #  subnet2AddressPrefixes=${{ inputs.subnet2AddressPrefixes }}
-          #  subnet3AddressPrefixes=${{ inputs.subnet3AddressPrefixes }}
-          #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
 
-
+      - name: Echo frontendSubnet
+        run: echo "::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
+         
   deploy-infra:    
     runs-on: ubuntu-latest
     needs: deploy-vnet    
@@ -154,5 +151,5 @@ jobs:
           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
           environmentType=${{ inputs.environmentType }}
-               #  deploymentMode: Validate
+              
        
