@@ -67,5 +67,5 @@ az group delete --resource-group AzureSQLPrivateVNProd --yes --no-wait
 
 
 git add .
-git commit -m "Multi env and workflow components part1-fix17"
+git commit -m "Multi env and workflow components part1-fix18"
 git push

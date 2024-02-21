@@ -95,7 +95,7 @@ jobs:
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
-        id: deploy-vnet
+        # id: deploy-vnet
         name: Sign in to Azure
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -104,6 +104,7 @@ jobs:
       - if: inputs.environmentType != 'Production'
         uses: azure/arm-deploy@v1
         name: Run preflight validation
+        id: deploy-vnet
         with:
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
