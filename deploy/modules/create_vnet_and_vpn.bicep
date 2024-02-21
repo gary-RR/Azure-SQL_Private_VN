@@ -139,5 +139,5 @@ output backendSubnet object=vnet.properties.subnets[1]
 output gatewaySubnet object=vnet.properties.subnets[2] 
 output vnetId string = vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
-output test string='someTest'
+output test string='/someTest/'
 
