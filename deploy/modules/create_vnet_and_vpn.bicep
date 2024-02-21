@@ -137,7 +137,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
 output frontendSubnet string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
 output backendSubnet object=vnet.properties.subnets[1] 
 output gatewaySubnet object=vnet.properties.subnets[2] 
-output vnetId string =replace(vnet.id, '/', '\\/')
+output vnetId string=vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
 output test string='/someTest/'
 
