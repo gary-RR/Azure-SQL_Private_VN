@@ -54,11 +54,14 @@ on:
         required: true
 
 jobs:
+  
   validate-vnet:
+    environment: ${{ inputs.environmentType }}
     runs-on: ubuntu-latest  
     steps:
     - uses: actions/checkout@v3
     - uses: azure/login@v1
+      id: validate-vnet
       name: Sign in to Azure
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -82,6 +85,7 @@ jobs:
         deploymentMode: Validate
 
   deploy-vnet:
+      environment: ${{ inputs.environmentType }}
       needs: validate-vnet
       runs-on: ubuntu-latest
       outputs:       
@@ -91,6 +95,7 @@ jobs:
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
+        id: deploy-vnet
         name: Sign in to Azure
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -113,9 +118,9 @@ jobs:
           #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
 
 
-  deploy-infra:
+  deploy-infra:    
     runs-on: ubuntu-latest
-    needs: deploy-vnet
+    needs: deploy-vnet    
     steps:               
     - uses: actions/checkout@v3
     - uses: azure/login@v1
@@ -129,14 +134,14 @@ jobs:
       name: Run preflight validation
       with:
         deploymentName: ${{ github.run_number }}
-        resourceGroupName: ${{ inputs.resourceGroupName }}
+        resourceGroupName: ${{ inputs.resourceGroupName }}       
         template: ./deploy/azure_sql_private_endpoint.bicep
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
-          frontendSubnet=${{needs.deploy-vnet.ouputs.frontendSubnet }}
-          backendSubnet=${{ needs.deploy-vnet.ouputs.backendSubnet }}
-          vnetId=${{ needs.deploy-vnet.ouputs.vnetId }}
+          frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
+          backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}
+          vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop=${{ inputs.createWindowsDesktop }}
