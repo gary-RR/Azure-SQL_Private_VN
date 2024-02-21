@@ -118,7 +118,7 @@ jobs:
         run: echo "::set-output name=frontendAddressPrefix::${{ steps.deploy-vnet.outputs.frontendSubnet}}"  #"::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
       - name: Echo vnetID  
         id: getVnetId
-        run: echo "::set-output name=vnetId1::${{ fromJson(steps.deploy-vnet.outputs.vnetId) }}"
+        run: echo "::set-output name=vnetId1::${{ steps.deploy-vnet.outputs.vnetId }}"
         
   deploy-infra:    
     runs-on: ubuntu-latest
