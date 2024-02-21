@@ -144,7 +144,7 @@ jobs:
           backendSubnet='{"name":"backendSubnet","id":"/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk/subnets/backendSubnet","etag":"W/\"86e55076-3bea-4c77-afd4-79a310eb972b\"","properties":{"provisioningState":"Succeeded","addressPrefix":"10.0.1.0/24","delegations":[],"privateEndpointNetworkPolicies":"Disabled","privateLinkServiceNetworkPolicies":"Enabled"},"type":"Microsoft.Network/virtualNetworks/subnets"}'          
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
-          createWindowsDesktop=${{ inputs.createWindowsDesktop }}
+          createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
           adminDBLoginName=${{ inputs.adminDBLoginName }}
           adminDBPassword=${{ secrets.adminDBPassword }}
           databaseName=${{ inputs.databaseName }}
