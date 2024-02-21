@@ -114,7 +114,7 @@ jobs:
             createGateway=${{ inputs.createGateway }}
 
       - name: Echo frontendSubnet
-        run: echo "::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
+        run: echo "::set-output name=frontendAddressPrefix::${{ fromJson(steps.deploy-vnet.outputs.frontendSubnet).properties.addressPrefix }}"  #"::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
          
   deploy-infra:    
     runs-on: ubuntu-latest
