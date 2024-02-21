@@ -137,7 +137,7 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
 output frontendSubnet string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
 output backendSubnet object=vnet.properties.subnets[1] 
 output gatewaySubnet object=vnet.properties.subnets[2] 
-output vnetId string ='/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk //vnet.id'
+output vnetId string ='/subscriptions/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroups/AzureSQLPrivateVNTest/providers/Microsoft.Network/virtualNetworks/vnet-cosmo-qxb7mehrcb4hk'
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
 output test string='/someTest/'
 
