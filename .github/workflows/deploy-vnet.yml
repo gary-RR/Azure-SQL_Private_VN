@@ -92,7 +92,7 @@ jobs:
         frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
         backendSubnet: ${{ steps.deploy-vnet.outputs.backendSubnet }}
         vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
-        vnetId1: ${{steps.getVnetId.outputs.vnetId1}}
+        vnetId1: ${{steps.deploy-vnet.outputs.test}}
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
