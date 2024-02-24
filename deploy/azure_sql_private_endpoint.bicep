@@ -23,22 +23,20 @@ param createLinuxServer1 bool=false
 param createWindowsDesktop1 bool=true
 
 param adminDBLoginName string
-@secure()
-param adminDBPassword string
-var a=adminDBPassword
-
+// @secure()
+// param adminDBPassword string
 
 param databaseName string
 
 param vmSize string='Standard_A0'
 
 param vmWindowsLoginUser string
-@secure()
-param vmWindowsLoginPassword string
+// @secure()
+// param vmWindowsLoginPassword string
 
 param vmLinuxLoginUser string
-@secure()
-param vmLinuxLoginPassword string
+// @secure()
+// param vmLinuxLoginPassword string
 
 @description('Select the type of environment you want to provision. Allowed values are Production and Test.')
 @allowed([
