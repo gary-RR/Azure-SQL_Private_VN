@@ -84,7 +84,7 @@ jobs:
   #        #  vpnClientAddressPrefix=${{ inputs.vpnClientAddressPrefix }}
   #       deploymentMode: Validate
 
-  deploy-vnet:
+  deploy-vnet:     
       # environment: ${{ inputs.environmentType }}
       # needs: validate-vnet
       runs-on: ubuntu-latest
@@ -109,6 +109,7 @@ jobs:
         name: Run preflight validation
         id: deploy-vnet
         with:
+          failOnStdErr: false
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: ./deploy/modules/create_vnet_and_vpn.bicep
@@ -142,6 +143,7 @@ jobs:
       uses: azure/arm-deploy@v1
       name: Run preflight validation
       with:
+        failOnStdErr: false
         deploymentName: ${{ github.run_number }}
         resourceGroupName: ${{ inputs.resourceGroupName }}       
         template: ./deploy/azure_sql_private_endpoint.bicep
