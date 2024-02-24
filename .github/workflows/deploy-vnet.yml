@@ -159,13 +159,13 @@ jobs:
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
           adminDBLoginName=${{ inputs.adminDBLoginName }}
-          adminDBPassword=${{ secrets.adminDBPassword }}
+          # adminDBPassword=${{ secrets.adminDBPassword }}
           databaseName=${{ inputs.databaseName }}
           vmSize=${{ inputs.vmSize }}
           vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
-          vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+          # vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
-          vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+          # vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
          
 
               
