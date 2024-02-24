@@ -116,13 +116,15 @@ jobs:
             appName=${{ inputs.appName }}
             createGateway=${{ inputs.createGateway }}
 
-      - name: Echo subnets
-        run: | 
-          echo "::set-output name=frontendSubnetStartIp::${{ steps.deploy-vnet.outputs.frontendSubnetStartIp}}"
-          echo "::set-output name=frontendSubnetEndIp::${{ steps.deploy-vnet.outputs.frontendSubnetEndIp}}" 
-          echo "::set-output name= backendSubnetId::${{ steps.deploy-vnet.outputs. backendSubnetId}}"        
-      - name: Echo vnetID  
-        id: getVnetId
+      - name: Echo frontendSubnetStartIp
+        run: echo "::set-output name=frontendSubnetStartIp::${{ steps.deploy-vnet.outputs.frontendSubnetStartIp}}" 
+      - name: Echo frontendSubnetEndIp
+        run: echo "::set-output name=frontendSubnetEndIp::${{ steps.deploy-vnet.outputs.frontendSubnetEndIp}}"
+      - name: Echo frontendSubnetId
+        run: echo "::set-output name=frontendSubnetId::${{ steps.deploy-vnet.outputs.frontendSubnetId}}"      
+      - name: Echo backendSubnetId
+        run: echo "::set-output name=backendSubnetId::${{ steps.deploy-vnet.outputs.backendSubnetId}}" 
+      - name: Echo vnetID
         run: echo "::set-output name=vnetId1::${{ steps.deploy-vnet.outputs.vnetId }}"
         
   deploy-infra:    
