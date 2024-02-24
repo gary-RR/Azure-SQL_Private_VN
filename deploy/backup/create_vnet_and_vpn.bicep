@@ -136,13 +136,13 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
 
 
 output frontendSubnetStartIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
-output frontendSubnetEndIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
-output frontendSubnetId string=vnet.properties.subnets[0].id
+output frontendSubnetEndIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
 
-output backendSubnetId string=vnet.properties.subnets[1].id
+output backendSubnetStartIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
+output backendSubnetEndIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
 
-output  gatewaySubnetStartIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).firstUsable
-output  gatewaySubnetEndIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).lastUsable
+output  gatewaySubnetStartIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
+output  gatewaySubnetEndIp string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
 
 output vnetId string=vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 

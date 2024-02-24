@@ -25,5 +25,5 @@ Works
 Works
 '/subscriptionse6566f193eb5436b904ffdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
 
-
+Doesn't work
 '/subscriptionse/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'

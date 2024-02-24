@@ -88,11 +88,9 @@ jobs:
       # environment: ${{ inputs.environmentType }}
       # needs: validate-vnet
       runs-on: ubuntu-latest
-      outputs:
-        frontendSubnetStartIp: ${{ steps.deploy-vnet.outputs.frontendSubnetStartIp }}
-        frontendSubnetEndIp: ${{ steps.deploy-vnet.outputs.frontendSubnetEndIp }}
-        frontendSubnetId: ${{ steps.deploy-vnet.outputs.frontendSubnetId }}
-        backendSubnetId: ${{ steps.deploy-vnet.outputs.backendSubnetId }}
+      outputs:       
+        frontendSubnet: ${{ steps.deploy-vnet.outputs.frontendSubnet }}
+        backendSubnet: ${{ steps.deploy-vnet.outputs.backendSubnet }}
         vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
         vnetId1: ${{steps.deploy-vnet.outputs.test}}
       steps:
@@ -116,11 +114,8 @@ jobs:
             appName=${{ inputs.appName }}
             createGateway=${{ inputs.createGateway }}
 
-      - name: Echo subnets
-        run: | 
-          echo "::set-output name=frontendSubnetStartIp::${{ steps.deploy-vnet.outputs.frontendSubnetStartIp}}"
-          echo "::set-output name=frontendSubnetEndIp::${{ steps.deploy-vnet.outputs.frontendSubnetEndIp}}" 
-          echo "::set-output name= backendSubnetId::${{ steps.deploy-vnet.outputs. backendSubnetId}}"        
+      - name: Echo frontendSubnet
+        run: echo "::set-output name=frontendAddressPrefix::${{ steps.deploy-vnet.outputs.frontendSubnet}}"  #"::set-output name=frontendSubnet::${{ steps.deploy-vnet.outputs.frontendSubnet }}"       
       - name: Echo vnetID  
         id: getVnetId
         run: echo "::set-output name=vnetId1::${{ steps.deploy-vnet.outputs.vnetId }}"
@@ -146,11 +141,9 @@ jobs:
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
-          vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
-          frontendSubnetStartIp: ${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
-          frontendSubnetEndIp: ${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
-          frontendSubnetId: ${{ needs.deploy-vnet.outputs.frontendSubnetId }}
-          backendSubnetId: ${{ needs.deploy-vnet.outputs.backendSubnetId }}
+          vnetId=${{ needs.deploy-vnet.outputs.vnetId1 }}
+          frontendSubnet=${{ needs.deploy-vnet.outputs.frontendSubnet }}
+          backendSubnet=${{ needs.deploy-vnet.outputs.backendSubnet }}
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop1=${{ inputs.createWindowsDesktop }}

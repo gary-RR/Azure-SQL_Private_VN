@@ -1,0 +1,106 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      resourceGroupName:
+        required: true
+        type: string
+      environmentType:
+        required: true
+        type: string
+      appName:
+        required: true
+        type: string
+      vnetId:
+        required: true
+        type: string
+      frontendSubnet:
+        required: true
+        type: string  
+      backendSubnet:
+          required: true
+          type: string   
+      createWindowsServer1:
+        required: true
+        type: boolean
+      createLinuxServer1:
+        required: true
+        type: boolean
+      createWindowsDesktop:
+        required: true
+        type: boolean
+      adminDBLoginName:
+        required: true
+        type: string
+      databaseName:
+        required: true
+        type: string
+      vmSize:
+        required: true
+        type: string
+      vmWindowsLoginUser:
+        required: true
+        type: string
+      vmLinuxLoginUser:
+        required: true
+        type: string
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true     
+      adminDBPassword:
+        required: true             
+      vmWindowsLoginPassword:
+        required: true
+      vmLinuxLoginPassword:
+        required: true
+      
+jobs:
+  validate:
+     runs-on: ubuntu-latest
+     steps:
+    #  - name: Extract outputs
+    #    id: extract-subnets
+    #    run: |
+    #      echo "::set-output name=frontendSubnet::$(echo '${{ inputs.frontendSubnet }}' | jq -c '.frontendSubnet')"
+    #      echo "::set-output name=backendSubnet::$(echo '${{ inputs.backendSubnet }}' | jq -c '.backendSubnet')"         
+     - uses: actions/checkout@v3
+     - uses: azure/login@v1
+       name: Sign in to Azure
+       with:
+         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+     - if: inputs.environmentType != 'Production'
+       uses: azure/arm-deploy@v1
+       name: Run preflight validation
+       with:
+         deploymentName: ${{ github.run_number }}
+         resourceGroupName: ${{ inputs.resourceGroupName }}
+         template: ./deploy/azure_sql_private_endpoint.bicep
+         parameters: >
+           environmentType=${{ inputs.environmentType }}
+           appName=${{ inputs.appName }}
+           frontendSubnet=${{ fromJSON(inputs.frontendSubnet) }}
+           backendSubnet=${{ fromJSON(inputs.backendSubnet) }}
+           vnetId=${{ inputs.vnetId }}
+           createWindowsServer1=${{ inputs.createWindowsServer1 }}
+           createLinuxServer1=${{ inputs.createLinuxServer1 }}
+           createWindowsDesktop=${{ inputs.createWindowsDesktop }}
+           adminDBLoginName=${{ inputs.adminDBLoginName }}
+           adminDBPassword=${{ secrets.adminDBPassword }}
+           databaseName=${{ inputs.databaseName }}
+           vmSize=${{ inputs.vmSize }}
+           vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
+           vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
+           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+           environmentType=${{ inputs.environmentType }}
+        #  deploymentMode: Validate
+
+
+

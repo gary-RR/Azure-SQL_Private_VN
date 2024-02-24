@@ -8,8 +8,15 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 param appName string ='cosmo'
 
 param vnetId string
-param frontendSubnet object
-param backendSubnet object
+
+
+
+param frontendSubnetStartIp string
+param frontendSubnetEndIp string
+param frontendSubnetId string
+
+param backendSubnetId string
+
 
 param createWindowsServer1 bool=false
 param createLinuxServer1 bool=false
@@ -132,8 +139,8 @@ resource allowFrontEndVnetTrafficFirewallRules 'Microsoft.Sql/servers/firewallRu
   parent: sqlServer
   name: 'allowfrontendTraffic'
   properties: {
-    startIpAddress: parseCidr(frontendSubnet.properties.addressPrefix).firstUsable
-    endIpAddress: parseCidr(frontendSubnet.properties.addressPrefix).lastUsable //creatVnet.outputs.endIPAddress
+    startIpAddress: frontendSubnetStartIp //parseCidr(frontendSubnet.properties.addressPrefix).firstUsable
+    endIpAddress: frontendSubnetEndIp    //parseCidr(frontendSubnet.properties.addressPrefix).lastUsable //creatVnet.outputs.endIPAddress
   }  
   
 }
@@ -148,7 +155,7 @@ resource nicWindowsServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: backendSubnet.id
+            id: backendSubnetId  //backendSubnet.id
           }
         }
       }
@@ -207,7 +214,7 @@ resource nicWindowsDesktop1 'Microsoft.Network/networkInterfaces@2020-06-01' = i
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: frontendSubnet.id
+            id: frontendSubnetId //frontendSubnet.id
           }
         }
       }
@@ -266,7 +273,7 @@ resource nicLinuxServer1 'Microsoft.Network/networkInterfaces@2020-06-01' = if (
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: frontendSubnet.id
+            id: frontendSubnetId //frontendSubnet.id
           }
         }
       }
@@ -326,7 +333,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   properties: {
     subnet: {
-      id: frontendSubnet.id 
+      id: frontendSubnetId //frontendSubnet.id 
     }
     privateLinkServiceConnections: [
       {
