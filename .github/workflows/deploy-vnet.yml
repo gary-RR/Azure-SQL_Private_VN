@@ -147,6 +147,9 @@ jobs:
         deploymentName: ${{ github.run_number }}
         resourceGroupName: ${{ inputs.resourceGroupName }}       
         template: ./deploy/azure_sql_private_endpoint.bicep
+         # vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+         # adminDBPassword=${{ secrets.adminDBPassword }}
+         # vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
         parameters: >
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
@@ -159,13 +162,11 @@ jobs:
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
           adminDBLoginName=${{ inputs.adminDBLoginName }}
-          # adminDBPassword=${{ secrets.adminDBPassword }}
           databaseName=${{ inputs.databaseName }}
           vmSize=${{ inputs.vmSize }}
-          vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
-          # vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+          vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}          
           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
-          # vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+         
          
 
               
