@@ -149,10 +149,10 @@ jobs:
           environmentType=${{ inputs.environmentType }}
           appName=${{ inputs.appName }}
           vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
-          frontendSubnetStartIp: ${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
-          frontendSubnetEndIp: ${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
-          frontendSubnetId: ${{ needs.deploy-vnet.outputs.frontendSubnetId }}
-          backendSubnetId: ${{ needs.deploy-vnet.outputs.backendSubnetId }}
+          frontendSubnetStartIp= ${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
+          frontendSubnetEndIp= ${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
+          frontendSubnetId=${{ needs.deploy-vnet.outputs.frontendSubnetId }}
+          backendSubnetId=${{ needs.deploy-vnet.outputs.backendSubnetId }}
           createWindowsServer1=${{ inputs.createWindowsServer1 }}
           createLinuxServer1=${{ inputs.createLinuxServer1 }}
           createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
