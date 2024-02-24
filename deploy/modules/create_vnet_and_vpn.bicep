@@ -6,7 +6,7 @@ param appName string='cosmo'
   'yes' 
   'no'
 ])
-param createGateway string='yes'
+param createGateway string //='yes'
 
 param vnetAddressPrefixes string='10.0.0.0/16'
 param subnet1AddressPrefixes string='10.0.0.0/24'
