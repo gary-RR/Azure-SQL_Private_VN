@@ -28,7 +28,7 @@ jobs:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
-        createGateway: false 
+        createGateway: no 
         createWindowsServer1: false
         createLinuxServer1: false
         createWindowsDesktop: false
