@@ -25,6 +25,8 @@ param createWindowsDesktop1 bool=true
 param adminDBLoginName string
 @secure()
 param adminDBPassword string
+var a=adminDBPassword
+
 
 param databaseName string
 
@@ -45,57 +47,76 @@ param vmLinuxLoginPassword string
 ])
 param environmentType string
 
-var environmentConfigurationMap = {
-  Production: {
-    appServicePlan: {
-      sku: {
-        name: 'S1'
-        capacity: 1
-      }
-    }
-    storageAccount: {
-      sku: {
-        name: 'Standard_LRS'
-      }
-    }
-    sqlDatabase: {
-      sku: {
-        name: 'Standard'
-        tier: 'Standard'
-      }
-    }
-  }
-  Test: {
-    appServicePlan: {
-      sku: {
-        name: 'F1'
-      }
-    }
-    storageAccount: {
-      sku: {
-        name: 'Standard_GRS'
-      }
-    }
-    sqlDatabase: {
-      sku: {
-        name: 'Standard'
-        tier: 'Standard'
-      }
-    }
-  }
-}
+output vnetId string=vnetId
+output frontendSubnetStartIp string=frontendSubnetStartIp
+output frontendSubnetEndIp string=frontendSubnetEndIp
+output frontendSubnetId string=frontendSubnetId 
+output backendSubnetId string=backendSubnetId
+output location string= location
+output resourceNameSuffix string =resourceNameSuffix
+output appName string =appName
+output createWindowsServer1 bool=createWindowsServer1
+output createLinuxServer1 bool=createLinuxServer1
+output createWindowsDesktop1 bool=createWindowsDesktop1
+output databaseName string=databaseName
+output vmSize string=vmSize
+output vmWindowsLoginUser string=vmWindowsLoginUser
+output vmLinuxLoginUser string=vmLinuxLoginUser
+output environmentType string=environmentType
+output adminDBLoginName string=adminDBLoginName
 
-var sqlServerName='sql-${appName}-${resourceNameSuffix}'
-var privateEndpointName='pep-${appName}-${resourceNameSuffix}'
-var privateDnsZoneName='prv-dns-zone-${appName}${environment().suffixes.sqlServerHostname}'
-var privateDnsZoneLinkName='prv-dns-zone-vnet-lnk${appName}${environment().suffixes.sqlServerHostname}'
-var privateDnsZoneGroupName='${appName}-PrivateDnsZoneGroup'
-var vmWindowsServer1Name='vm-${appName}-hr'
-var vmWindowsDesktop1Name='vm-${appName}-client'
-var vmWLinuxName='vm-${appName}-stores'
-var nicNameWindowServer1='nic-${vmWindowsServer1Name}'
-var nicNameLinux='nic-${vmWLinuxName}'
-var nicNameWindowsDesktop1='nic-${vmWindowsDesktop1Name}'
+
+// var environmentConfigurationMap = {
+//   Production: {
+//     appServicePlan: {
+//       sku: {
+//         name: 'S1'
+//         capacity: 1
+//       }
+//     }
+//     storageAccount: {
+//       sku: {
+//         name: 'Standard_LRS'
+//       }
+//     }
+//     sqlDatabase: {
+//       sku: {
+//         name: 'Standard'
+//         tier: 'Standard'
+//       }
+//     }
+//   }
+//   Test: {
+//     appServicePlan: {
+//       sku: {
+//         name: 'F1'
+//       }
+//     }
+//     storageAccount: {
+//       sku: {
+//         name: 'Standard_GRS'
+//       }
+//     }
+//     sqlDatabase: {
+//       sku: {
+//         name: 'Standard'
+//         tier: 'Standard'
+//       }
+//     }
+//   }
+// }
+
+// var sqlServerName='sql-${appName}-${resourceNameSuffix}'
+// var privateEndpointName='pep-${appName}-${resourceNameSuffix}'
+// var privateDnsZoneName='prv-dns-zone-${appName}${environment().suffixes.sqlServerHostname}'
+// var privateDnsZoneLinkName='prv-dns-zone-vnet-lnk${appName}${environment().suffixes.sqlServerHostname}'
+// var privateDnsZoneGroupName='${appName}-PrivateDnsZoneGroup'
+// var vmWindowsServer1Name='vm-${appName}-hr'
+// var vmWindowsDesktop1Name='vm-${appName}-client'
+// var vmWLinuxName='vm-${appName}-stores'
+// var nicNameWindowServer1='nic-${vmWindowsServer1Name}'
+// var nicNameLinux='nic-${vmWLinuxName}'
+// var nicNameWindowsDesktop1='nic-${vmWindowsDesktop1Name}'
 
 // // module createVnet 'modules/create_vnet_and_vpn.bicep' = {
 // //   name: 'vnet'
