@@ -31,7 +31,7 @@ jobs:
         createGateway: no 
         createWindowsServer1: false
         createLinuxServer1: false
-        createWindowsDesktop: false
+        createWindowsDesktop1: false
         adminDBLoginName: gary
         databaseName: slaesfloor
         vmSize: 'Standard_A0'  
@@ -67,7 +67,7 @@ jobs:
         vnetId: ${{ needs.deploy-vnet.outputs.vnetId }}
         createWindowsServer1: true
         createLinuxServer1: true
-        createWindowsDesktop: true
+        createWindowsDesktop1: true
         adminDBLoginName: gary
         databaseName: slaesfloor
         vmSize: 'Standard_A0'  

@@ -44,7 +44,7 @@ on:
       createLinuxServer1:
         required: true
         type: boolean
-      createWindowsDesktop:
+      createWindowsDesktop1:
         required: true
         type: boolean
       adminDBLoginName:
@@ -115,7 +115,7 @@ jobs:
            vnetId=${{ inputs.vnetId }}
            createWindowsServer1=${{ inputs.createWindowsServer1 }}
            createLinuxServer1=${{ inputs.createLinuxServer1 }}
-           createWindowsDesktop=${{ inputs.createWindowsDesktop }}
+           createWindowsDesktop1=${{ inputs.createWindowsDesktop1 }}
            adminDBLoginName=${{ inputs.adminDBLoginName }}          
            databaseName=${{ inputs.databaseName }}
            vmSize=${{ inputs.vmSize }}
