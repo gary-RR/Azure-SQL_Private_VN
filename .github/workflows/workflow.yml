@@ -21,7 +21,7 @@ jobs:
 #   lint:
 #     uses: ./.github/workflows/lint.yml
 
-  deploy-vnet:            
+  deploy-vnet-test:            
       uses: ./.github/workflows/deploy-vnet.yml
     #   needs: [build, lint]
       with:
@@ -47,24 +47,24 @@ jobs:
 
   job2:
      runs-on: ubuntu-latest
-     needs: deploy-vnet
+     needs: deploy-vnet-test
      steps:
-       - run: echo ${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }} 
-       - run: echo ${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
+       - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }} 
+       - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
 
     
-  validate-infra-test:
+  deploy-infra-test:
       uses: ./.github/workflows/deploy-infra.yml 
-      needs: [deploy-vnet]
+      needs: [deploy-vnet-test]
       with:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
-        frontendSubnetStartIp: ${{needs.deploy-vnet.outputs.frontendSubnetStartIp }}
-        frontendSubnetEndIp: ${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
-        frontendSubnetId: ${{ needs.deploy-vnet.outputs.frontendSubnetId }}
-        backendSubnetId: ${{ needs.deploy-vnet.outputs.backendSubnetId }}
-        vnetId: ${{ needs.deploy-vnet.outputs.vnetId }}
+        frontendSubnetStartIp: ${{needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
+        frontendSubnetEndIp: ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }}
+        frontendSubnetId: ${{ needs.deploy-vnet-test.outputs.frontendSubnetId }}
+        backendSubnetId: ${{ needs.deploy-vnet-test.outputs.backendSubnetId }}
+        vnetId: ${{ needs.deploy-vnet-test.outputs.vnetId }}
         createWindowsServer1: true
         createLinuxServer1: true
         createWindowsDesktop1: true
