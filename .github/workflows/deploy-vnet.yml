@@ -32,7 +32,7 @@ on:
       createLinuxServer1:
         required: true
         type: boolean
-      createWindowsDesktop:
+      createWindowsDesktop1:
         required: true
         type: boolean
       adminDBLoginName:
