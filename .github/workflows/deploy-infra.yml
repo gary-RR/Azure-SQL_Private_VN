@@ -1,7 +1,18 @@
-name: deploy
+name: deploy-infra
 
 on:
   workflow_call:
+    outputs:
+      frontendSubnetStartIp: 
+        value: ${{jobs.deploy-infra.outputs.frontendSubnetStartIp }}
+      frontendSubnetEndIp: 
+        value: ${{ jobs.deploy-infra.outputs.frontendSubnetEndIp }}
+      frontendSubnetId: 
+        value: ${{ jobs.deploy-infra.outputs.frontendSubnetId }}
+      backendSubnetId: 
+        value: ${{ jobs.deploy-infra.outputs.backendSubnetId }}   
+      vinetId: 
+          value: ${{ jobs.deploy-infra.outputs.vnetId }}  
     inputs:
       resourceGroupName:
         required: true
@@ -15,12 +26,18 @@ on:
       vnetId:
         required: true
         type: string
-      frontendSubnet:
+      frontendSubnetStartIp:
         required: true
         type: string  
-      backendSubnet:
+      frontendSubnetEndIp:
           required: true
           type: string   
+      frontendSubnetId:
+          required: true
+          type: string    
+      backendSubnetId:
+          required: true
+          type: string      
       createWindowsServer1:
         required: true
         type: boolean
@@ -52,22 +69,24 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true     
-      adminDBPassword:
-        required: true             
-      vmWindowsLoginPassword:
-        required: true
-      vmLinuxLoginPassword:
-        required: true
+      # adminDBPassword:
+      #   required: true             
+      # vmWindowsLoginPassword:
+      #   required: true
+      # vmLinuxLoginPassword:
+      #   required: true
       
 jobs:
-  validate:
+  deploy-infra:
      runs-on: ubuntu-latest
-     steps:
-    #  - name: Extract outputs
-    #    id: extract-subnets
-    #    run: |
-    #      echo "::set-output name=frontendSubnet::$(echo '${{ inputs.frontendSubnet }}' | jq -c '.frontendSubnet')"
-    #      echo "::set-output name=backendSubnet::$(echo '${{ inputs.backendSubnet }}' | jq -c '.backendSubnet')"         
+     outputs:
+        frontendSubnetStartIp: ${{ steps.deploy-infra.outputs.frontendSubnetStartIp }}
+        frontendSubnetEndIp: ${{ steps.deploy-infra.outputs.frontendSubnetEndIp }}
+        frontendSubnetId: ${{ steps.deploy-infra.outputs.frontendSubnetId }}
+        backendSubnetId: ${{ steps.deploy-infra.outputs.backendSubnetId }}
+        vnetId: ${{ steps.deploy-infra.outputs.vnetId }}  
+      
+     steps:     
      - uses: actions/checkout@v3
      - uses: azure/login@v1
        name: Sign in to Azure
@@ -77,28 +96,31 @@ jobs:
          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
      - if: inputs.environmentType != 'Production'
        uses: azure/arm-deploy@v1
-       name: Run preflight validation
+       name: Deploy Infra
+       id: deploy-infra
        with:
          deploymentName: ${{ github.run_number }}
          resourceGroupName: ${{ inputs.resourceGroupName }}
+        #  adminDBPassword=${{ secrets.adminDBPassword }}
+        #  vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+        #  vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
          template: ./deploy/azure_sql_private_endpoint.bicep
          parameters: >
            environmentType=${{ inputs.environmentType }}
            appName=${{ inputs.appName }}
-           frontendSubnet=${{ fromJSON(inputs.frontendSubnet) }}
-           backendSubnet=${{ fromJSON(inputs.backendSubnet) }}
+           frontendSubnetStartIp=${{ inputs.frontendSubnetStartIp}}
+           frontendSubnetEndIp=${{ inputs.frontendSubnetEndIp }}
+           frontendSubnetId=${{ inputs.frontendSubnetId }}
+           backendSubnetId=${{ inputs.backendSubnetId }}
            vnetId=${{ inputs.vnetId }}
            createWindowsServer1=${{ inputs.createWindowsServer1 }}
            createLinuxServer1=${{ inputs.createLinuxServer1 }}
            createWindowsDesktop=${{ inputs.createWindowsDesktop }}
-           adminDBLoginName=${{ inputs.adminDBLoginName }}
-           adminDBPassword=${{ secrets.adminDBPassword }}
+           adminDBLoginName=${{ inputs.adminDBLoginName }}          
            databaseName=${{ inputs.databaseName }}
            vmSize=${{ inputs.vmSize }}
-           vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}
-           vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
-           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
-           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+           vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}          
+           vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}           
            environmentType=${{ inputs.environmentType }}
         #  deploymentMode: Validate
 

@@ -10,7 +10,9 @@ on:
       frontendSubnetId: 
         value: ${{ jobs.deploy-vnet.outputs.frontendSubnetId }}
       backendSubnetId: 
-        value: ${{ jobs.deploy-vnet.outputs.backendSubnetId }}       
+        value: ${{ jobs.deploy-vnet.outputs.backendSubnetId }}   
+      vnetId:
+        value: ${{ jobs.deploy-vnet.outputs.vnetId }}      
     inputs:
       resourceGroupName:
         required: true
