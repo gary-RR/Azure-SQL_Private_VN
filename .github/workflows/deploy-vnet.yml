@@ -2,6 +2,15 @@ name: deploy
 
 on:
   workflow_call:
+    outputs:
+      frontendSubnetStartIp: 
+        value: ${{jobs.deploy-vnet.outputs.frontendSubnetStartIp }}
+      frontendSubnetEndIp: 
+        value: ${{ jobs.deploy-vnet.outputs.frontendSubnetEndIp }}
+      frontendSubnetId: 
+        value: ${{ jobs.deploy-vnet.outputs.frontendSubnetId }}
+      backendSubnetId: 
+        value: ${{ jobs.deploy-vnet.outputs.backendSubnetId }}       
     inputs:
       resourceGroupName:
         required: true
@@ -128,44 +137,44 @@ jobs:
       - name: Echo vnetID
         run: echo "::set-output name=vnetId1::${{ steps.deploy-vnet.outputs.vnetId }}"
         
-  deploy-infra:    
-    runs-on: ubuntu-latest
-    needs: deploy-vnet       
-    steps:               
-    - uses: actions/checkout@v3
-    - uses: azure/login@v1
-      name: Sign in to Azure
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - if: inputs.environmentType != 'Production'
-      uses: azure/arm-deploy@v1
-      name: Run preflight validation
-      with:
-        failOnStdErr: false
-        deploymentName: ${{ github.run_number }}
-        resourceGroupName: ${{ inputs.resourceGroupName }}       
-        template: ./deploy/azure_sql_private_endpoint.bicep
-         # vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
-         # adminDBPassword=${{ secrets.adminDBPassword }}
-         # vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
-        parameters: >
-          environmentType=${{ inputs.environmentType }}
-          appName=${{ inputs.appName }}
-          vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
-          frontendSubnetStartIp=${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
-          frontendSubnetEndIp=${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
-          frontendSubnetId=${{ needs.deploy-vnet.outputs.frontendSubnetId }}
-          backendSubnetId=${{ needs.deploy-vnet.outputs.backendSubnetId }}
-          createWindowsServer1=${{ inputs.createWindowsServer1 }}
-          createLinuxServer1=${{ inputs.createLinuxServer1 }}
-          createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
-          adminDBLoginName=${{ inputs.adminDBLoginName }}
-          databaseName=${{ inputs.databaseName }}
-          vmSize=${{ inputs.vmSize }}
-          vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}          
-          vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
+  # deploy-infra:    
+  #   runs-on: ubuntu-latest
+  #   needs: deploy-vnet       
+  #   steps:               
+  #   - uses: actions/checkout@v3
+  #   - uses: azure/login@v1
+  #     name: Sign in to Azure
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   - if: inputs.environmentType != 'Production'
+  #     uses: azure/arm-deploy@v1
+  #     name: Run preflight validation
+  #     with:
+  #       failOnStdErr: false
+  #       deploymentName: ${{ github.run_number }}
+  #       resourceGroupName: ${{ inputs.resourceGroupName }}       
+  #       template: ./deploy/azure_sql_private_endpoint.bicep
+  #        # vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+  #        # adminDBPassword=${{ secrets.adminDBPassword }}
+  #        # vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+  #       parameters: >
+  #         environmentType=${{ inputs.environmentType }}
+  #         appName=${{ inputs.appName }}
+  #         vnetId=${{ needs.deploy-vnet.outputs.vnetId }}
+  #         frontendSubnetStartIp=${{ needs.deploy-vnet.outputs.frontendSubnetStartIp }}
+  #         frontendSubnetEndIp=${{ needs.deploy-vnet.outputs.frontendSubnetEndIp }}
+  #         frontendSubnetId=${{ needs.deploy-vnet.outputs.frontendSubnetId }}
+  #         backendSubnetId=${{ needs.deploy-vnet.outputs.backendSubnetId }}
+  #         createWindowsServer1=${{ inputs.createWindowsServer1 }}
+  #         createLinuxServer1=${{ inputs.createLinuxServer1 }}
+  #         createWindowsDesktop1=${{ inputs.createWindowsDesktop }}
+  #         adminDBLoginName=${{ inputs.adminDBLoginName }}
+  #         databaseName=${{ inputs.databaseName }}
+  #         vmSize=${{ inputs.vmSize }}
+  #         vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}          
+  #         vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}
          
          
 
