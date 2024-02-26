@@ -68,6 +68,8 @@ output vmWindowsLoginUser string=vmWindowsLoginUser
 output vmLinuxLoginUser string=vmLinuxLoginUser
 output environmentType string=environmentType
 output adminDBLoginName string=adminDBLoginName
+output dummy1 string=vnetId
+output dummy2 string=backendSubnetId
 
 
 
