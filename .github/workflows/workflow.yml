@@ -51,9 +51,9 @@ jobs:
      steps:
        - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }} 
        - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
-
+       - run: echo ${{ needs.deploy-vnet-test.outputs.vnetName}}
     
-  deploy-infra-test:
+  deploy-infra-test:      
       uses: ./.github/workflows/deploy-infra.yml 
       needs: [deploy-vnet-test]
       with:

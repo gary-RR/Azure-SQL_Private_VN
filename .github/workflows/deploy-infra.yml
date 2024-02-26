@@ -13,6 +13,8 @@ on:
         value: ${{ jobs.deploy-infra.outputs.backendSubnetId }}   
       vinetId: 
           value: ${{ jobs.deploy-infra.outputs.vnetId }}  
+      vnetName:  
+          value: ${{ jobs.deploy-infra.outputs.vnetName }}  
     inputs:
       resourceGroupName:
         required: true
@@ -88,6 +90,7 @@ jobs:
         frontendSubnetId: ${{ steps.deploy-infra.outputs.frontendSubnetId }}
         backendSubnetId: ${{ steps.deploy-infra.outputs.backendSubnetId }}
         vnetId: ${{ steps.deploy-infra.outputs.vnetId }}  
+        vnetName: ${{ steps.deploy-infra.outputs.vnetName }} 
       
      steps:     
      - uses: actions/checkout@v3
@@ -102,6 +105,7 @@ jobs:
        name: Deploy Infra
        id: deploy-infra
        with:
+         failOnStdErr: false
          deploymentName: ${{ github.run_number }}
          resourceGroupName: ${{ inputs.resourceGroupName }}
         #  adminDBPassword=${{ secrets.adminDBPassword }}
