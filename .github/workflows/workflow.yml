@@ -63,8 +63,9 @@ jobs:
         frontendSubnetStartIp: ${{needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
         frontendSubnetEndIp: ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }}
         frontendSubnetId: ${{ needs.deploy-vnet-test.outputs.frontendSubnetId }}
-        backendSubnetId: ${{ fromJSON(needs.deploy-vnet-test.outputs.backendSubnetId) }}
+        backendSubnetId: ${{ needs.deploy-vnet-test.outputs.backendSubnetId }}
         vnetId: ${{ needs.deploy-vnet-test.outputs.vnetId }}
+        vnetName: ${{ needs.deploy-vnet-test.outputs.vnetName }}
         createWindowsServer1: true
         createLinuxServer1: true
         createWindowsDesktop1: true

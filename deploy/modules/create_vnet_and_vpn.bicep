@@ -147,6 +147,7 @@ output  gatewaySubnetEndIp string= parseCidr(vnet.properties.subnets[2].properti
 output vnetId string=vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
 output test string='/subscriptionse/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
+output vnetName string=vnetName
 
 // output frontendSubnet string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
 // output backendSubnet object=vnet.properties.subnets[1] 

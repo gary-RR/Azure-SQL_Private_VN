@@ -26,6 +26,9 @@ on:
       vnetId:
         required: true
         type: string
+      vnetName:
+        required: true
+        type: string  
       frontendSubnetStartIp:
         required: true
         type: string  
@@ -113,6 +116,7 @@ jobs:
            frontendSubnetId=${{ inputs.frontendSubnetId }}
            backendSubnetId=${{ inputs.backendSubnetId }}
            vnetId=${{ inputs.vnetId }}
+           vnetName=${{ inputs.vnetName}}
            createWindowsServer1=${{ inputs.createWindowsServer1 }}
            createLinuxServer1=${{ inputs.createLinuxServer1 }}
            createWindowsDesktop1=${{ inputs.createWindowsDesktop1 }}

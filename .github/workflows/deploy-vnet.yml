@@ -12,7 +12,9 @@ on:
       backendSubnetId: 
         value: ${{ jobs.deploy-vnet.outputs.backendSubnetId }}   
       vnetId:
-        value: ${{ jobs.deploy-vnet.outputs.vnetId }}      
+        value: ${{ jobs.deploy-vnet.outputs.vnetId }}  
+      vnetName:      
+        value: ${{ jobs.deploy-vnet.outputs.vnetName }}   }}      
     inputs:
       resourceGroupName:
         required: true
@@ -106,6 +108,7 @@ jobs:
         backendSubnetId: ${{ steps.deploy-vnet.outputs.backendSubnetId }}
         vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
         vnetId1: ${{steps.deploy-vnet.outputs.test}}
+        vnetName: ${{steps.deploy-vnet.outputs.vnetName}}
       steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
