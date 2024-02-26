@@ -14,7 +14,7 @@ on:
       vnetId:
         value: ${{ jobs.deploy-vnet.outputs.vnetId }}  
       vnetName:      
-        value: ${{ jobs.deploy-vnet.outputs.vnetName }}   }}      
+        value: ${{ jobs.deploy-vnet.outputs.vnetName }}        
     inputs:
       resourceGroupName:
         required: true
