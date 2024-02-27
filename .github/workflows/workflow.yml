@@ -48,9 +48,7 @@ jobs:
   job2:
      runs-on: ubuntu-latest
      needs: deploy-vnet-test
-     steps:
-       - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }} 
-       - run: echo ${{ needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
+     steps:      
        - run: echo ${{ needs.deploy-vnet-test.outputs.vnetName}}
     
   deploy-infra-test:      
@@ -59,12 +57,7 @@ jobs:
       with:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
-        appName: cosmo
-        frontendSubnetStartIp: ${{needs.deploy-vnet-test.outputs.frontendSubnetStartIp }}
-        frontendSubnetEndIp: ${{ needs.deploy-vnet-test.outputs.frontendSubnetEndIp }}
-        frontendSubnetId: ${{ needs.deploy-vnet-test.outputs.frontendSubnetId }}
-        backendSubnetId: ${{ needs.deploy-vnet-test.outputs.backendSubnetId }}
-        vnetId: ${{ needs.deploy-vnet-test.outputs.vnetId }}
+        appName: cosmo       
         vnetName: ${{ needs.deploy-vnet-test.outputs.vnetName }}
         createWindowsServer1: true
         createLinuxServer1: true

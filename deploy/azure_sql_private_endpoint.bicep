@@ -7,16 +7,7 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 param appName string ='cosmo'
 
-param vnetId string
 param vnetName string
-
-
-param frontendSubnetStartIp string
-param frontendSubnetEndIp string
-param frontendSubnetId string
-
-param backendSubnetId string
-
 
 param createWindowsServer1 bool=false
 param createLinuxServer1 bool=false
@@ -49,13 +40,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01'  existing = {
   name: vnetName
 }
 
- 
 
 output vnetId string=vnet.id //vnetId
-output frontendSubnetStartIp string=frontendSubnetStartIp
-output frontendSubnetEndIp string=frontendSubnetEndIp
-output frontendSubnetId string=frontendSubnetId 
-output backendSubnetId string=vnet.properties.subnets[1].id //backendSubnetId
+output frontendSubnetStartIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
+output frontendSubnetEndIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
+output frontendSubnetId string=vnet.properties.subnets[0].id 
+output backendSubnetId string=vnet.properties.subnets[1].id 
 output location string= location
 output resourceNameSuffix string =resourceNameSuffix
 output appName string =appName
@@ -68,8 +58,7 @@ output vmWindowsLoginUser string=vmWindowsLoginUser
 output vmLinuxLoginUser string=vmLinuxLoginUser
 output environmentType string=environmentType
 output adminDBLoginName string=adminDBLoginName
-output dummy1 string=vnetId
-output dummy2 string=backendSubnetId
+
 
 
 

@@ -2,17 +2,7 @@ name: deploy-infra
 
 on:
   workflow_call:
-    outputs:
-      frontendSubnetStartIp: 
-        value: ${{jobs.deploy-infra.outputs.frontendSubnetStartIp }}
-      frontendSubnetEndIp: 
-        value: ${{ jobs.deploy-infra.outputs.frontendSubnetEndIp }}
-      frontendSubnetId: 
-        value: ${{ jobs.deploy-infra.outputs.frontendSubnetId }}
-      backendSubnetId: 
-        value: ${{ jobs.deploy-infra.outputs.backendSubnetId }}   
-      vinetId: 
-          value: ${{ jobs.deploy-infra.outputs.vnetId }}  
+    outputs:      
       vnetName:  
           value: ${{ jobs.deploy-infra.outputs.vnetName }}  
     inputs:
@@ -24,25 +14,10 @@ on:
         type: string
       appName:
         required: true
-        type: string
-      vnetId:
-        required: true
-        type: string
+        type: string 
       vnetName:
         required: true
-        type: string  
-      frontendSubnetStartIp:
-        required: true
-        type: string  
-      frontendSubnetEndIp:
-          required: true
-          type: string   
-      frontendSubnetId:
-          required: true
-          type: string    
-      backendSubnetId:
-          required: true
-          type: string      
+        type: string      
       createWindowsServer1:
         required: true
         type: boolean
@@ -114,12 +89,7 @@ jobs:
          template: ./deploy/azure_sql_private_endpoint.bicep
          parameters: >
            environmentType=${{ inputs.environmentType }}
-           appName=${{ inputs.appName }}
-           frontendSubnetStartIp=${{ inputs.frontendSubnetStartIp}}
-           frontendSubnetEndIp=${{ inputs.frontendSubnetEndIp }}
-           frontendSubnetId=${{ inputs.frontendSubnetId }}
-           backendSubnetId=${{ inputs.backendSubnetId }}
-           vnetId=${{ inputs.vnetId }}
+           appName=${{ inputs.appName }}        
            vnetName=${{ inputs.vnetName}}
            createWindowsServer1=${{ inputs.createWindowsServer1 }}
            createLinuxServer1=${{ inputs.createLinuxServer1 }}

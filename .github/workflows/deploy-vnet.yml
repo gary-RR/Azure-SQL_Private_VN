@@ -2,17 +2,7 @@ name: deploy
 
 on:
   workflow_call:
-    outputs:
-      frontendSubnetStartIp: 
-        value: ${{jobs.deploy-vnet.outputs.frontendSubnetStartIp }}
-      frontendSubnetEndIp: 
-        value: ${{ jobs.deploy-vnet.outputs.frontendSubnetEndIp }}
-      frontendSubnetId: 
-        value: ${{ jobs.deploy-vnet.outputs.frontendSubnetId }}
-      backendSubnetId: 
-        value: ${{ jobs.deploy-vnet.outputs.backendSubnetId }}   
-      vnetId:
-        value: ${{ jobs.deploy-vnet.outputs.vnetId }}  
+    outputs:           
       vnetName:      
         value: ${{ jobs.deploy-vnet.outputs.vnetName }}        
     inputs:
@@ -101,13 +91,8 @@ jobs:
       # environment: ${{ inputs.environmentType }}
       # needs: validate-vnet
       runs-on: ubuntu-latest
-      outputs:
-        frontendSubnetStartIp: ${{ steps.deploy-vnet.outputs.frontendSubnetStartIp }}
-        frontendSubnetEndIp: ${{ steps.deploy-vnet.outputs.frontendSubnetEndIp }}
-        frontendSubnetId: ${{ steps.deploy-vnet.outputs.frontendSubnetId }}
-        backendSubnetId: ${{ steps.deploy-vnet.outputs.backendSubnetId }}
-        vnetId: ${{ steps.deploy-vnet.outputs.vnetId }}
-        vnetId1: ${{steps.deploy-vnet.outputs.test}}
+      outputs:       
+        
         vnetName: ${{steps.deploy-vnet.outputs.vnetName}}
       steps:
       - uses: actions/checkout@v3
@@ -131,16 +116,8 @@ jobs:
             appName=${{ inputs.appName }}
             createGateway=${{ inputs.createGateway }}
 
-      - name: Echo frontendSubnetStartIp
-        run: echo "::set-output name=frontendSubnetStartIp::${{ steps.deploy-vnet.outputs.frontendSubnetStartIp}}" 
-      - name: Echo frontendSubnetEndIp
-        run: echo "::set-output name=frontendSubnetEndIp::${{ steps.deploy-vnet.outputs.frontendSubnetEndIp}}"
-      - name: Echo frontendSubnetId
-        run: echo "::set-output name=frontendSubnetId::${{ steps.deploy-vnet.outputs.frontendSubnetId}}"      
-      - name: Echo backendSubnetId
-        run: echo "::set-output name=backendSubnetId::${{ steps.deploy-vnet.outputs.backendSubnetId}}" 
-      - name: Echo vnetID
-        run: echo "::set-output name=vnetId1::${{ steps.deploy-vnet.outputs.vnetId }}"
+      - name: Echo vnetName
+        run: echo "::set-output name=vvnetName::${{ steps.deploy-vnet.outputs.vnetName }}"
         
   
               

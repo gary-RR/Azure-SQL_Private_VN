@@ -135,19 +135,20 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = if(c
 
 
 
-output frontendSubnetStartIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
-output frontendSubnetEndIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
-output frontendSubnetId string=vnet.properties.subnets[0].id
+// output frontendSubnetStartIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
+// output frontendSubnetEndIp string=parseCidr(vnet.properties.subnets[0].properties.addressPrefix).lastUsable
+// output frontendSubnetId string=vnet.properties.subnets[0].id
 
-output backendSubnetId string=vnet.properties.subnets[1].id
+// output backendSubnetId string=vnet.properties.subnets[1].id
 
-output  gatewaySubnetStartIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).firstUsable
-output  gatewaySubnetEndIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).lastUsable
+// output  gatewaySubnetStartIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).firstUsable
+// output  gatewaySubnetEndIp string= parseCidr(vnet.properties.subnets[2].properties.addressPrefix).lastUsable
 
-output vnetId string=vnet.id
+// output vnetId string=vnet.id
 output gatewayId string = ((createGateway=='yes') ? vpnGateway.id : '') 
-output test string='/subscriptionse/e6566f19-3eb5-436b-904f-fdd540b4fd58/resourceGroupsAzureSQLPrivateVNTestprovidersMicrosoft.NetworkvirtualNetworksvnetcosmoqxb7mehrcb4hk'
 output vnetName string=vnetName
+output subnet1Name string=subnet1Name
+output subnet2Name string=subnet2Name
 
 // output frontendSubnet string= parseCidr(vnet.properties.subnets[0].properties.addressPrefix).firstUsable
 // output backendSubnet object=vnet.properties.subnets[1] 
