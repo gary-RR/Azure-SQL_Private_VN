@@ -28,22 +28,11 @@ jobs:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVNTest
         appName: cosmo
-        createGateway: no 
-        createWindowsServer1: false
-        createLinuxServer1: false
-        createWindowsDesktop1: false
-        adminDBLoginName: gary
-        databaseName: slaesfloor
-        vmSize: 'Standard_A0'  
-        vmWindowsLoginUser: gary
-        vmLinuxLoginUser: gary         
+        createGateway: no                 
       secrets:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          adminDBPassword: ${{ secrets.ADMINDBPASSWORD }}
-          vmWindowsLoginPassword: ${{ secrets.VMWINDOWSLOGINPASSWORD }}
-          vmLinuxLoginPassword: ${{ secrets.VMLINUXLOGINPASSWORD }}
 
   job2:
      runs-on: ubuntu-latest
@@ -64,7 +53,7 @@ jobs:
         createWindowsDesktop1: true
         adminDBLoginName: gary
         databaseName: slaesfloor
-        vmSize: 'Standard_A0'  
+        vmSize: 'Standard_B1ls'  
         vmWindowsLoginUser: gary
         vmLinuxLoginUser: gary                  
       secrets:

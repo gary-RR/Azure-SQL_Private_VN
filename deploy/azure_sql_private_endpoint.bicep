@@ -19,7 +19,7 @@ param adminDBPassword string
 
 param databaseName string
 
-param vmSize string='Standard_A0'
+param vmSize string='Standard_B1ls'
 
 param vmWindowsLoginUser string
 @secure()

@@ -17,31 +17,7 @@ on:
         type: string
       createGateway:
         required: true
-        type: string      
-      createWindowsServer1:
-        required: true
-        type: boolean
-      createLinuxServer1:
-        required: true
-        type: boolean
-      createWindowsDesktop1:
-        required: true
-        type: boolean
-      adminDBLoginName:
-        required: true
-        type: string
-      databaseName:
-        required: true
-        type: string
-      vmSize:
-        required: true
-        type: string
-      vmWindowsLoginUser:
-        required: true
-        type: string
-      vmLinuxLoginUser:
-        required: true
-        type: string         
+        type: string 
     secrets:
       AZURE_CLIENT_ID:
         required: true
@@ -49,13 +25,7 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
-      adminDBPassword:
-        required: true             
-      vmWindowsLoginPassword:
-        required: true
-      vmLinuxLoginPassword:
-        required: true
-
+      
 jobs:
   
   # validate-vnet:
