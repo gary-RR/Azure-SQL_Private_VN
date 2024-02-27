@@ -188,7 +188,7 @@ resource vmWindowsServer1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (c
         version: 'latest'
       }
       osDisk: {
-        name: 'vmdisk1'
+        name: 'vmdServer1isk1'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'StandardSSD_LRS'
@@ -246,7 +246,7 @@ resource vmWindowsDesktop1 'Microsoft.Compute/virtualMachines@2020-06-01' = if (
         version: 'latest'
       }
       osDisk: {
-        name: 'vmdisk1'
+        name: 'vmDesk1disk1'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'StandardSSD_LRS'
