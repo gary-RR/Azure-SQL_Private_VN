@@ -49,12 +49,12 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true     
-      # adminDBPassword:
-      #   required: true             
-      # vmWindowsLoginPassword:
-      #   required: true
-      # vmLinuxLoginPassword:
-      #   required: true
+      adminDBPassword:
+        required: true             
+      vmWindowsLoginPassword:
+        required: true
+      vmLinuxLoginPassword:
+        required: true
       
 jobs:
   deploy-infra:
@@ -82,10 +82,7 @@ jobs:
        with:
          failOnStdErr: false
          deploymentName: ${{ github.run_number }}
-         resourceGroupName: ${{ inputs.resourceGroupName }}
-        #  adminDBPassword=${{ secrets.adminDBPassword }}
-        #  vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
-        #  vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
+         resourceGroupName: ${{ inputs.resourceGroupName }}         
          template: ./deploy/azure_sql_private_endpoint.bicep
          parameters: >
            environmentType=${{ inputs.environmentType }}
@@ -100,6 +97,9 @@ jobs:
            vmWindowsLoginUser=${{ inputs.vmWindowsLoginUser }}          
            vmLinuxLoginUser=${{ inputs.vmLinuxLoginUser }}           
            environmentType=${{ inputs.environmentType }}
+           adminDBPassword=${{ secrets.adminDBPassword }}
+           vmWindowsLoginPassword=${{ secrets.vmWindowsLoginPassword }}
+           vmLinuxLoginPassword=${{ secrets.vmLinuxLoginPassword }}
         #  deploymentMode: Validate
 
 
