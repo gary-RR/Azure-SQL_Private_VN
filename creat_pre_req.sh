@@ -31,9 +31,9 @@ githubOrganizationName="${4}"
 githubRepositoryName="${5}"
 
 resourceGroupResourceId=$(az group create --name "${resourceGroup}" --location westus3 --query id --output tsv)
-echo "applicationRegistrationAppId: ${applicationRegistrationAppId}"
 
 applicationRegistrationAppId=$(az ad app list --display-name $appName --query "[].appId" -o tsv)
+echo "applicationRegistrationAppId: ${applicationRegistrationAppId}"
 if [ -z "$applicationRegistrationAppId" ]; then
 # Create the AD app if it doesn't exist
   echo 'Creating Federated Credentials and Service Principal..'
