@@ -31,7 +31,7 @@ githubOrganizationName="${4}"
 githubRepositoryName="${5}"
 
 resourceGroupResourceId=$(az group create --name "${resourceGroup}" --location westus3 --query id --output tsv)
-echo "${resourceGroupResourceId}"
+echo "applicationRegistrationAppId: ${applicationRegistrationAppId}"
 
 applicationRegistrationAppId=$(az ad app list --display-name $appName --query "[].appId" -o tsv)
 if [ -z "$applicationRegistrationAppId" ]; then
@@ -56,10 +56,10 @@ fi
 
 resourceGroupResourceId=${resourceGroupResourceId:1}
 
-az role assignment create \
-   --assignee $applicationRegistrationAppId \
-   --role Contributor \
-   --scope $resourceGroupResourceId
+# az role assignment create \
+#    --assignee $applicationRegistrationAppId \
+#    --role Contributor \
+#    --scope $resourceGroupResourceId
 
 # echo $applicationRegistrationObjectId , $applicationRegistrationAppId
 
