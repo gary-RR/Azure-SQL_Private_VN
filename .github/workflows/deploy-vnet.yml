@@ -77,6 +77,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
+            chmod +rx ./creat_pre_req.sh
             ./creat_pre_req.sh Azure-SQL_Private_VN AzureSQLPrivateVN test 'gary-RR' 'Azure-SQL_Private_VN'
             echo "Azure resource group created"
       # - if: inputs.environmentType != 'Production'

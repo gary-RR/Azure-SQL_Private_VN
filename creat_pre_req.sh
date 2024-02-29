@@ -52,6 +52,8 @@ else
    applicationRegistrationObjectId=$(az ad app list --display-name $1 --query "[].id" -o tsv)
 fi
 
+resourceGroupResourceId=${resourceGroupResourceId:1}
+
 az role assignment create \
    --assignee $applicationRegistrationAppId \
    --role Contributor \
