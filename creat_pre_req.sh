@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Args: ${1} ${2} ${3} ${4} ${5} "
+
 function check_for_input_blank(){
     param_name=$1
     param_val=$2
