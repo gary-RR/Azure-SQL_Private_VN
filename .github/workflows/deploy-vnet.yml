@@ -73,21 +73,27 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - if: inputs.environmentType != 'Production'
-        uses: azure/arm-deploy@v1
-        name: Run preflight validation
-        id: deploy-vnet
+      - uses: Azure/CLI@v1
         with:
-          failOnStdErr: false
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ inputs.resourceGroupName }}
-          template: ./deploy/modules/create_vnet_and_vpn.bicep
-          parameters: >           
-            appName=${{ inputs.appName }}
-            createGateway=${{ inputs.createGateway }}
+          inlineScript: |
+            #!/bin/bash
+            ./creat_pre_req.sh Azure-SQL_Private_VN AzureSQLPrivateVN test 'gary-RR' 'Azure-SQL_Private_VN'
+            echo "Azure resource group created"
+      # - if: inputs.environmentType != 'Production'
+      #   uses: azure/arm-deploy@v1
+      #   name: Run preflight validation
+      #   id: deploy-vnet
+      #   with:
+      #     failOnStdErr: false
+      #     deploymentName: ${{ github.run_number }}
+      #     resourceGroupName: ${{ inputs.resourceGroupName }}
+      #     template: ./deploy/modules/create_vnet_and_vpn.bicep
+      #     parameters: >           
+      #       appName=${{ inputs.appName }}
+      #       createGateway=${{ inputs.createGateway }}
 
-      - name: Echo vnetName
-        run: echo "::set-output name=vvnetName::${{ steps.deploy-vnet.outputs.vnetName }}"
+      # - name: Echo vnetName
+      #   run: echo "::set-output name=vvnetName::${{ steps.deploy-vnet.outputs.vnetName }}"
         
   
               
