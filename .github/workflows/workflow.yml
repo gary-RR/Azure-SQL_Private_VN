@@ -45,7 +45,7 @@ jobs:
       needs: [deploy-vnet-test]
       with:
         environmentType: Test
-        resourceGroupName: AzureSQLPrivateVNTest
+        resourceGroupName: AzureSQLPrivateVN-test
         appName: cosmo       
         vnetName: ${{ needs.deploy-vnet-test.outputs.vnetName }}
         createWindowsServer1: true

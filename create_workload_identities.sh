@@ -37,7 +37,7 @@ az ad app delete --id $applicationRegistrationAppId
 
 
 git add .
-git commit -m "Multi env and workflow components part1-fix18"
+git commit -m "Added linting and validation to Vnet creation."
 git push
 
 # Experimentations*********************************************************************************************
