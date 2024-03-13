@@ -33,7 +33,10 @@ githubRepositoryName="${5}"
 resourceGroupResourceId=$(az group create --name "${resourceGroup}" --location westus3 --query id --output tsv)
 
 applicationRegistrationAppId=$(az ad app list --display-name $appName --query "[].appId" -o tsv)
-echo "applicationRegistrationAppId: ${applicationRegistrationAppId}"
+
+applicationRegistrationDetails=$(az ad app create --display-name "${appName}")
+
+#If this is a new ad app registration
 if [ -z "$applicationRegistrationAppId" ]; then
 # Create the AD app if it doesn't exist
   echo 'Creating Federated Credentials and Service Principal..'
@@ -49,19 +52,31 @@ if [ -z "$applicationRegistrationAppId" ]; then
     --id $applicationRegistrationObjectId \
     --parameters "{\"name\":\"${githubRepositoryName}-${env}-branch\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:ref:refs/heads/main\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
 
-    az ad sp create --id $applicationRegistrationObjectId
-else
-   applicationRegistrationObjectId=$(az ad app list --display-name $1 --query "[].id" -o tsv)
+# If the ad app already exists, delete its currnt SP so it can be recreated and bind to the new resource group.        
+else   
+   # First delete the role assignment. This is due to a bug in the current Azure API where if a SP is deleted without its role binding, it doesn't cleanly delete the SP. 
+   spId=$(az ad sp list --display-name ${appName} --query "[].id" -o tsv)
+   id=$(az role assignment list --assignee $spId --all --query "[].id" -o tsv)
+   id=${id:1}
+   az role assignment delete --ids $id
+   # Delete the SP
+   az ad sp delete --id ${applicationRegistrationAppId}  
+   applicationRegistrationObjectId=$(az ad app list --display-name $appName --query "[].id" -o tsv)  
 fi
 
+az ad sp create --id $applicationRegistrationObjectId
+#Remove its leading "/" due to a bug in Git bash where an extra leading "/" is added.
 resourceGroupResourceId=${resourceGroupResourceId:1}
 
-# az role assignment create \
-#    --assignee $applicationRegistrationAppId \
-#    --role Contributor \
-#    --scope $resourceGroupResourceId
+# echo "Assigning SP contribute role to resource group...."
+az role assignment create \
+   --assignee $applicationRegistrationAppId \
+   --role Contributor \
+   --scope $resourceGroupResourceId
 
-# echo $applicationRegistrationObjectId , $applicationRegistrationAppId
-
-# ./creat_pre_req.sh Azure-SQL_Private_VN AzureSQLPrivateVN test 'gary-RR' 'Azure-SQL_Private_VN'
-      
+# echo "applicationRegistrationObjectId: ${applicationRegistrationObjectId}" 
+CAP_ENV=$(echo ${env} | tr '[:lower:]' '[:upper:]')
+# echo "AZURE_CLIENT_ID_${CAP_ENV}: ${applicationRegistrationAppId}"
+app_id="AZURE_CLIENT_ID_${CAP_ENV}: ${applicationRegistrationAppId}"
+# echo ${app_id}
+echo ${app_id}     

@@ -1,59 +1,14 @@
+appName='Azure-SQL_Private_VN'
+resourceGroup='AzureSQLPrivateVN'
 githubOrganizationName='gary-RR'
 githubRepositoryName='Azure-SQL_Private_VN'
+env=''
 
-#****************************************************************Test********************************************************************************************
-testApplicationRegistrationDetails=$(az ad app create --display-name 'Azure-SQL_Private_VN-test')
-testApplicationRegistrationObjectId=$(echo $testApplicationRegistrationDetails | jq -r '.id')
-testApplicationRegistrationAppId=$(echo $testApplicationRegistrationDetails | jq -r '.appId')
+env='test'
+./creat_pre_req.sh ${appName} ${resourceGroup} ${env} ${githubOrganizationName} ${githubRepositoryName}
 
-az ad app federated-credential create \
-   --id $testApplicationRegistrationObjectId \
-   --parameters "{\"name\":\"Azure-SQL_Private_VN-test\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:environment:Test\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
-
-az ad app federated-credential create \
-   --id $testApplicationRegistrationObjectId \
-   --parameters "{\"name\":\"Azure-SQL_Private_VN-test-branch\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:ref:refs/heads/main\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
-
-
-#*********************************************************Prod*************************************************************************************************************
-productionApplicationRegistrationDetails=$(az ad app create --display-name 'Azure-SQL_Private_VN-production')
-productionApplicationRegistrationObjectId=$(echo $productionApplicationRegistrationDetails | jq -r '.id')
-productionApplicationRegistrationAppId=$(echo $productionApplicationRegistrationDetails | jq -r '.appId')
-
-az ad app federated-credential create \
-   --id $productionApplicationRegistrationObjectId \
-   --parameters "{\"name\":\"Azure-SQL_Private_VN-production\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:environment:Production\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
-
-az ad app federated-credential create \
-   --id $productionApplicationRegistrationObjectId \
-   --parameters "{\"name\":\"Azure-SQL_Private_VN-production-branch\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:ref:refs/heads/main\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
-
-
-#*******************************************************Create a test Resource group and a SP and give contibutor access to the SP.
-testResourceGroupResourceId=$(az group create --name AzureSQLPrivateVNTest --location westus3 --query id --output tsv)
-
-# There is a bug in git bash and Azure CLI where we must remove the starting "/" from "/subscriptions"
-testResourceGroupResourceId=${testResourceGroupResourceId:1}
-
-az ad sp create --id $testApplicationRegistrationObjectId
-
-az role assignment create \
-   --assignee $testApplicationRegistrationAppId \
-   --role Contributor \
-   --scope $testResourceGroupResourceId
-
-#*******************************************************Create a prod Resource group and a SP and give contibutor access to the SP.
-productionResourceGroupResourceId=$(az group create --name AzureSQLPrivateVNProd --location westus3 --query id --output tsv)
-
-# There is a bug in git bash and Azure CLI where we must remove the starting "/" from "/subscriptions"
-productionResourceGroupResourceId=${productionResourceGroupResourceId:1}
-
-az ad sp create --id $productionApplicationRegistrationObjectId
-
-az role assignment create \
-   --assignee $productionApplicationRegistrationAppId \
-   --role Contributor \
-   --scope $productionResourceGroupResourceId
+env='production'
+./creat_pre_req.sh ${appName} ${resourceGroup} ${env} ${githubOrganizationName} ${githubRepositoryName}
 
 echo "AZURE_CLIENT_ID_TEST: $testApplicationRegistrationAppId"
 echo "AZURE_CLIENT_ID_PRODUCTION: $productionApplicationRegistrationAppId"
@@ -61,12 +16,44 @@ echo "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
 echo "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
 
 
+
+
 #Clean up
-az group delete --resource-group AzureSQLPrivateVNTest --yes --no-wait
-az group delete --resource-group AzureSQLPrivateVNProd --yes --no-wait
+env='test'
+az group delete --resource-group "${resourceGroup}-${env}" --yes --no-wait
+applicationRegistrationAppId=$(az ad app list --display-name "${appName}-${env}" --query "[].appId" -o tsv)
+az ad app delete --id $applicationRegistrationAppId
+
+env='production'
+az group delete --resource-group "${resourceGroup}-${env}" --yes --no-wait
+applicationRegistrationAppId=$(az ad app list --display-name "${appName}-${env}" --query "[].appId" -o tsv)
+az ad app delete --id $applicationRegistrationAppId
+
+# The following are not necessary, just shown if needed to delete them but not their respective applications.
+# az ad app federated-credential delete --federated-credential-id  'Azure-SQL_Private_VN-test' --id $testApplicationRegistrationAppId
+# az ad app federated-credential delete --federated-credential-id  'Azure-SQL_Private_VN-test-branch' --id $testApplicationRegistrationAppId
+# az ad app list --display-name 'Azure-SQL_Private_VN-test'
+
 
 
 git add .
 git commit -m "Multi env and workflow components part1-fix18"
 git push
 
+# Experimentations*********************************************************************************************
+
+az ad sp list --display-name 'Azure-SQL_Private_VN-test' --query "[].appId" -o tsv
+az ad sp list --display-name 'Azure-SQL_Private_VN-test' --query "[].appOwnerOrganizationId" -o tsv
+
+spId=$(az ad sp list --display-name 'Azure-SQL_Private_VN-test' --query "[].id" -o tsv)
+az role assignment list --assignee $spId --all
+id=$(az role assignment list --assignee $spId --all --query "[].id" -o tsv)
+id=${id:1}
+az role assignment delete --ids $id
+
+# Lint
+az bicep build --file ./deploy/modules/create_vnet_and_vpn.bicep
+#Pre flight validation
+az deployment group validate --resource-group rg-AzureSQLTest --template-file ./deploy/modules/create_vnet_and_vpn.bicep
+# Deploy
+az deployment group create --resource-group rg-AzureSQLTest --template-file ./deploy/modules/create_vnet_and_vpn.bicep
