@@ -75,18 +75,18 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  deploy-vnet-ptod:            
-      uses: ./.github/workflows/deploy-vnet.yml
-      needs: [deploy-vnet-test, deploy-infra-test]
-      with:
-        environmentType: Production
-        resourceGroupName: AzureSQLPrivateVN-production
-        appName: cosmo
-        createGateway: no                 
-      secrets:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  # deploy-vnet-ptod:            
+  #     uses: ./.github/workflows/deploy-vnet.yml
+  #     needs: [deploy-vnet-test, deploy-infra-test]
+  #     with:
+  #       environmentType: Production
+  #       resourceGroupName: AzureSQLPrivateVN-production
+  #       appName: cosmo
+  #       createGateway: no                 
+  #     secrets:
+  #       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
+  #       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
         #Testing
   # deploy-infra-prod:      
