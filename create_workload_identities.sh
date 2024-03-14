@@ -20,7 +20,7 @@ echo "AZURE_CLIENT_ID_TEST: $testApplicationRegistrationAppId"
 echo "AZURE_CLIENT_ID_PRODUCTION: $productionApplicationRegistrationAppId"
 echo "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
 echo "AZURE_SUBSCRIPTION_ID: $(az account show --query id --output tsv)"
-
+Echo 'test'
 
 
 
@@ -43,7 +43,7 @@ az ad app delete --id $applicationRegistrationAppId
 
 
 git add .
-git commit -m "Added linting and validation to Vnet creation."
+git commit -m "End to end implementtion."
 git push
 
 # Experimentations*********************************************************************************************

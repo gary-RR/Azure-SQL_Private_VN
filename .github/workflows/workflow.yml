@@ -88,39 +88,40 @@ jobs:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  deploy-infra-prod:      
-      uses: ./.github/workflows/deploy-infra.yml 
-      needs: [deploy-vnet-prod]
-      with:
-        environmentType: Test
-        resourceGroupName: AzureSQLPrivateVN-production
-        appName: cosmo       
-        vnetName: ${{ needs.deploy-vnet-test.outputs.vnetName }}
-        createWindowsServer1: true
-        createLinuxServer1: true
-        createWindowsDesktop1: true
-        adminDBLoginName: gary
-        databaseName: slaesfloor
-        vmSize: 'Standard_B1ls'  
-        vmWindowsLoginUser: gary
-        vmLinuxLoginUser: gary                  
-      secrets:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          adminDBPassword: ${{ secrets.ADMINDBPASSWORD }}
-          vmWindowsLoginPassword: ${{ secrets.VMWINDOWSLOGINPASSWORD }}
-          vmLinuxLoginPassword: ${{ secrets.VMLINUXLOGINPASSWORD }}                                                                                                                                                                                     deploy-vnet-test:            
-      uses: ./.github/workflows/deploy-vnet.yml
-      needs: [build, lint]
-      with:
-        environmentType: Test
-        resourceGroupName: AzureSQLPrivateVN-test
-        appName: cosmo
-        createGateway: no                 
-      secrets:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        #Testing
+  # deploy-infra-prod:      
+  #     uses: ./.github/workflows/deploy-infra.yml 
+  #     needs: [deploy-vnet-prod]
+  #     with:
+  #       environmentType: Test
+  #       resourceGroupName: AzureSQLPrivateVN-production
+  #       appName: cosmo       
+  #       vnetName: ${{ needs.deploy-vnet-test.outputs.vnetName }}
+  #       createWindowsServer1: true
+  #       createLinuxServer1: true
+  #       createWindowsDesktop1: true
+  #       adminDBLoginName: gary
+  #       databaseName: slaesfloor
+  #       vmSize: 'Standard_B1ls'  
+  #       vmWindowsLoginUser: gary
+  #       vmLinuxLoginUser: gary                  
+  #     secrets:
+  #         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
+  #         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #         adminDBPassword: ${{ secrets.ADMINDBPASSWORD }}
+  #         vmWindowsLoginPassword: ${{ secrets.VMWINDOWSLOGINPASSWORD }}
+  #         vmLinuxLoginPassword: ${{ secrets.VMLINUXLOGINPASSWORD }}                                                                                                                                                                                     deploy-vnet-test:            
+  #     uses: ./.github/workflows/deploy-vnet.yml
+  #     needs: [build, lint]
+  #     with:
+  #       environmentType: Test
+  #       resourceGroupName: AzureSQLPrivateVN-test
+  #       appName: cosmo
+  #       createGateway: no                 
+  #     secrets:
+  #         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
+  #         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 
