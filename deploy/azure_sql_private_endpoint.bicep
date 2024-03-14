@@ -5,7 +5,14 @@ param location string=resourceGroup().location
 @maxLength(13)
 param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
-param appName string ='cosmo'
+@description('Select the type of environment you want to provision. Allowed values are Production and Test.')
+@allowed([
+  'Production'
+  'Test'
+])
+param environmentType string
+
+param appName string ='cosmo' //nvironmentType=='Test' ? 'cosmo-%{environmentType}' : 'cosmo'
 
 param vnetName string
 
@@ -29,12 +36,8 @@ param vmLinuxLoginUser string
 @secure()
 param vmLinuxLoginPassword string
 
-@description('Select the type of environment you want to provision. Allowed values are Production and Test.')
-@allowed([
-  'Production'
-  'Test'
-])
-param environmentType string
+
+
 
 var environmentConfigurationMap = {
   Production: {

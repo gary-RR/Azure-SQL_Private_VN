@@ -10,6 +10,12 @@ env='test'
 env='production'
 ./creat_pre_req.sh ${appName} ${resourceGroup} ${env} ${githubOrganizationName} ${githubRepositoryName}
 
+env='test'
+testApplicationRegistrationAppId=$(az ad app list --display-name "${appName}-${env}" --query "[].appId" -o tsv)
+
+env='production'
+productionApplicationRegistrationAppId=$(az ad app list --display-name "${appName}-${env}" --query "[].appId" -o tsv)
+
 echo "AZURE_CLIENT_ID_TEST: $testApplicationRegistrationAppId"
 echo "AZURE_CLIENT_ID_PRODUCTION: $productionApplicationRegistrationAppId"
 echo "AZURE_TENANT_ID: $(az account show --query tenantId --output tsv)"
