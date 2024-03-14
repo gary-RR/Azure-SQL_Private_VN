@@ -46,7 +46,7 @@ if [ -z "$applicationRegistrationAppId" ]; then
 
   az ad app federated-credential create \
    --id $applicationRegistrationObjectId \
-   --parameters "{\"name\":\"${githubRepositoryName}-${env}\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:environment:Test\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
+   --parameters "{\"name\":\"${githubRepositoryName}-${env}\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:${githubOrganizationName}/${githubRepositoryName}:environment:${env}\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
 
     az ad app federated-credential create \
     --id $applicationRegistrationObjectId \
