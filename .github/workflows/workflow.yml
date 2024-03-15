@@ -28,7 +28,7 @@ jobs:
         environmentType: Test
         resourceGroupName: AzureSQLPrivateVN-test
         appName: cosmo
-        createGateway: no                 
+        createGateway: yes                
       secrets:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
