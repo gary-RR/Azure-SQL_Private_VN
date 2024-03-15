@@ -71,7 +71,7 @@ jobs:
         environmentType: Production
         resourceGroupName: AzureSQLPrivateVN-production
         appName: cosmo
-        createGateway: no                 
+        createGateway: yes                
       secrets:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PRODUCTION }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

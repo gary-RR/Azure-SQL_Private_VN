@@ -43,7 +43,7 @@ az ad app delete --id $applicationRegistrationAppId
 
 
 git add .
-git commit -m "End to end implementtion."
+git commit -m "Enable VPN."
 git push
 
 # Experimentations*********************************************************************************************
